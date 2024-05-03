@@ -1,0 +1,88 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    margin: 24px;
+  }
+
+.nav-tabs {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .nav-tabs .nav-link {
+    color: #495057;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    margin-right: 50px;
+    padding: 10px 20px; /* Increase padding */
+    font-size: 18px; /* Increase font size */
+    border-radius: 5px; /* Add border radius */
+    transition: background-color 0.3s ease; /* Add transition for hover effect */
+  }
+  
+  .nav-tabs .nav-link:hover {
+    background-color: #f8f9fa; /* Change background color on hover */
+  }
+  
+  .nav-tabs .nav-link.active {
+    color: #fff;
+    background-color: #007bff;
+    border: 1px solid #007bff;
+    font-style: normal;
+    text-decoration:none;
+    margin-left: 50px;
+  }
+  
+  .nav-tabs .nav-link, .nav-tabs .nav-link a {
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  .tab-content {
+    border: 1px solid #dee2e6;
+    border-top: none;
+    padding: 10px;
+    background-color: #fff;
+    height: calc(100vh - 50px); /* Adjust as necessary */
+    width: 100%;
+    margin-top: 48px;
+  }
+
+  .progress-line {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .progress-step {
+    width: 100px; 
+    height: 30px; 
+    margin-right:25px;
+    margin-left: 25px;
+    background-color: #ccc;
+    border-radius: 5px; 
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+  }
+  
+  .progress-step.active {
+    background-color: #007bff;
+    color: #fff;
+  }
+
+  .progress-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .arrow {
+    cursor: pointer;
+    margin: 0 20px;
+    font-size: 24px; 
+  }
