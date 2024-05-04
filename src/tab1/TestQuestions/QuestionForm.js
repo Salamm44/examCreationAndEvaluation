@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave } from '@fortawesome/free-solid-svg-icons';
 import styled from 'styled-components';
@@ -29,10 +29,14 @@ const StyledDiv = styled.div`
 `;
 
 const StyledH3 = styled.h3`
-    margin-top: 0px;
+    margin: 0px;
 `;
-const QuestionForm = ({ numQuestions, numAnswers }) => {
+const QuestionForm = ({ numQuestions=0, numAnswers=0 }) => {
     const [questions, setQuestions] = useState(Array(numQuestions).fill(''));
+
+    useEffect(() => {
+        setQuestions(Array(numQuestions).fill(''));
+    }, [numQuestions]);
 
     const handleQuestionChange = (index, newQuestion) => {
         setQuestions(questions.map((question, i) => i === index ? newQuestion : question));
