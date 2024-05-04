@@ -24,7 +24,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 50%;
+    width: 80%;
 }
 
 
@@ -42,5 +42,5 @@
 .date-input-container {
     display: flex;
     align-items: center;
-    width: 50%;
+    width: 80%;
 }

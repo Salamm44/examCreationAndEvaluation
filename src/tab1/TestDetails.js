@@ -5,8 +5,21 @@ import './TestDetails.css';
 import InputField from '../custom-components/InputField';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import AddQuestions from './TestQuestions';
 import { isFormEmpty } from '../utils/checkFormEmpty';
+import styled from 'styled-components';
+
+const StyledForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.2);
+  width: 50%;
+  margin: auto;
+  margin-top: 63px
+`;
+
 
 const TestDetails = () => {
   const initialForm = {
@@ -60,14 +73,14 @@ const TestDetails = () => {
       (name === 'organization' || name === 'subject') &&
       (/^\d+$/.test(value) || value.length < 3);
 
-      if (name === 'date') {
-        isError = value === '' || value === 'tt.mm.jjjj'; // date should not be empty or placeholder
-        if (!isError) {
-          const date = new Date(value);
-          const now = new Date();
-          isError = date < now; // date should not be in the past
-        }
+    if (name === 'date') {
+      isError = value === '' || value === 'tt.mm.jjjj'; // date should not be empty or placeholder
+      if (!isError) {
+        const date = new Date(value);
+        const now = new Date();
+        isError = date < now; // date should not be in the past
       }
+    }
 
     setForm((prevForm) => ({
       ...prevForm,
@@ -161,84 +174,85 @@ const TestDetails = () => {
   const formIsEmpty = isFormEmpty(form);
 
   return (
-    <div className="creation-container">
-      <ToastContainer />
-      <h1 className="h1-style">Test Details</h1>
-      <form className="creation-form">
-        <InputField
-          type="text"
-          name="organization"
-          placeholder="Enter organization"
-          initialValue={form.organization}
-          propValue={form.organization}
-          error={error.organization}
-          handleInputChange={handleInputChange}
-        />
-        <InputField
-          type="text"
-          name="subject"
-          placeholder="Test Subject"
-          initialValue={form.subject}
-          propValue={form.subject}
-          error={error.subject}
-          handleInputChange={handleInputChange}
-        />
-        <InputField
-          type="number"
-          name="points"
-          placeholder="Total Points"
-          initialValue={form.points}
-          propValue={form.points}
-          handleInputChange={handleInputChange}
-        />
-        <InputField
-          type="date"
-          name="date"
-          initialValue={form.date}
-          propValue={form.date}
-          handleInputChange={handleInputChange}
-        />
-        <InputField
-          className="input-field-num-qurestions"
-          type="number"
-          name="numQuestions"
-          placeholder="Number of Questions"
-          initialValue={form.numQuestions}
-          propValue={form.numQuestions}
-          handleInputChange={handleInputChange}
-        />
+    <StyledForm>
+      <div className="creation-container">
+        <ToastContainer />
+        <form className="creation-form">
+          <InputField
+            type="text"
+            name="organization"
+            placeholder="Enter organization"
+            initialValue={form.organization}
+            propValue={form.organization}
+            error={error.organization}
+            handleInputChange={handleInputChange}
+          />
+          <InputField
+            type="text"
+            name="subject"
+            placeholder="Test Subject"
+            initialValue={form.subject}
+            propValue={form.subject}
+            error={error.subject}
+            handleInputChange={handleInputChange}
+          />
+          <InputField
+            type="number"
+            name="points"
+            placeholder="Total Points"
+            initialValue={form.points}
+            propValue={form.points}
+            handleInputChange={handleInputChange}
+          />
+          <InputField
+            type="date"
+            name="date"
+            initialValue={form.date}
+            propValue={form.date}
+            handleInputChange={handleInputChange}
+          />
+          <InputField
+            className="input-field-num-qurestions"
+            type="number"
+            name="numQuestions"
+            placeholder="Number of Questions"
+            initialValue={form.numQuestions}
+            propValue={form.numQuestions}
+            handleInputChange={handleInputChange}
+          />
 
-        <InputField
-          className="input-field-num-answers"
-          type="number"
-          name="numAnswers"
-          placeholder="Number of Answers"
-          initialValue={form.numAnswers}
-          propValue={form.numAnswers}
-          handleInputChange={handleInputChange}
-        />
+          <InputField
+            className="input-field-num-answers"
+            type="number"
+            name="numAnswers"
+            placeholder="Number of Answers"
+            initialValue={form.numAnswers}
+            propValue={form.numAnswers}
+            handleInputChange={handleInputChange}
+          />
 
-        <div className="control-buttons-container">
-          <button
-            type="button"
-            className="creation-button reset-button"
-            onClick={resetForm}
-          >
-            <FontAwesomeIcon icon={faRedo} /> Reset
-          </button>
+          <div className="control-buttons-container">
+            <button
+              type="button"
+              className="creation-button reset-button"
+              onClick={resetForm}
+            >
+              <FontAwesomeIcon icon={faRedo} /> Reset
+            </button>
 
-          <button
-            type="submit"
-            className="creation-button"
-            onClick={saveData}
-            disabled={!isFormValid() || (isSaved && formIsEmpty)}
-          >
-            <FontAwesomeIcon icon={isSaved ? faEdit : faSave} />{' '}
-            {isSaved ? 'Update' : 'Save'}
-          </button>
-        </div>
-      </form>
-    </div>
+            <button
+              type="submit"
+              className="creation-button"
+              onClick={saveData}
+              disabled={!isFormValid() || (isSaved && formIsEmpty)}
+            >
+              <FontAwesomeIcon icon={isSaved ? faEdit : faSave} />{' '}
+              {isSaved ? 'Update' : 'Save'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </StyledForm>
   );
 };
 
