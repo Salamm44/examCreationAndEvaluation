@@ -18,9 +18,10 @@ body, html {
     border: 3px solid #FFD023;
     margin-right: 10px;
     padding: 10px 20px; /* Increase padding */
-    font-size: 18px; /* Increase font size */
+    font-size: 14px; /* Increase font size */
     border-radius: 5px; /* Add border radius */
     transition: background-color 0.3s ease; /* Add transition for hover effect */
+    font-weight: bold;
   }
   
   .nav-tabs .nav-link:hover {
@@ -60,14 +61,14 @@ body, html {
   .progress-step {
     width: 120px; 
     height: 30px;
-    margin: 25px;
+    margin: 10px;
     background-color: #FFD023;
     border-radius: 5px; 
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
-
+    font-weight: bold;
   }
   
   .progress-step.active {
@@ -90,5 +91,6 @@ body, html {
     cursor: pointer;
     margin: 0 20px;
     font-size: 24px; 
+    color: #C0091E;
   }
 

@@ -23,7 +23,7 @@
     width: 150px;
     height: 40px;
     font-size: 16px;
-    margin: 0 auto;
+    margin: 8px;
 }
 
 .error-message {
@@ -41,3 +41,24 @@
 .tab1-container {
     width: 100%;
 }
+
+.question-answer-input-field {
+    display: flex;
+    justify-content: space-between;
+}
+
+.input-field-num-qurestions .input-field-num-answers {
+    width: 45%;
+}
+
+.control-buttons-container {
+    justify-content: center;
+    display: flex;
+    flex-direction: row;
+    width: 100% !important;
+    align-items: center;
+}
+
+.reset-button {
+    color: lightslategray; /* Replace with the color you want */
+  }

@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRedo } from '@fortawesome/free-solid-svg-icons';
 import './InputField.css'; // import the CSS file
 
-const InputField = ({ type, name, placeholder, initialValue, error, handleInputChange }) => {
-    const [value, setValue] = useState(initialValue);
+const InputField = ({ type, name, placeholder, initialValue, propValue,error, handleInputChange }) => {
+    // console.log(name, propValue); // add this line
+    const [value, setValue] = useState(propValue);
+
+      // Update the local state when propValue changes
+      useEffect(() => {
+        setValue(propValue);
+      }, [propValue]);
 
     const handleInputChangeLocal = (e) => {
         const newValue = e.target.value;
