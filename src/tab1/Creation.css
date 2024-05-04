@@ -1,0 +1,43 @@
+.creation-container {
+    display: flex;
+    flex-direction: column;
+    width: calc(100% - 100px);
+    margin: 0 auto;
+}
+.creation-form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.creation-input {
+    width: 100%;
+    font-size: 16px;
+    height: 40px;
+    padding-left: 16px;
+}
+
+.creation-button {
+    width: 150px;
+    height: 40px;
+    font-size: 16px;
+    margin: 0 auto;
+}
+
+.error-message {
+    color: red;
+    text-align: left;
+    margin: 5px 0;
+}
+
+.warning-message {
+    color: #999;
+    text-align: left;
+    margin: 5px 0;
+}
+
+.tab1-container {
+    width: 100%;
+}

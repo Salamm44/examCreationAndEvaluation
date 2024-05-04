@@ -25,12 +25,12 @@ const MainPage = () => {
       </Nav.Item>
       <Nav.Item>
         <Nav.Link as="div" eventKey="tab2" onClick={() => setActiveTab('tab2')}>
-          <Link to="/tab2">Checking Test</Link>
+          <Link to="/tab2">Upload Answers</Link>
         </Nav.Link>
       </Nav.Item>
       <Nav.Item>
         <Nav.Link as="div" eventKey="tab3" onClick={() => setActiveTab('tab3')}>
-          <Link to="/tab3">Preview Test Result</Link>
+          <Link to="/tab3">Show Results</Link>
         </Nav.Link>
       </Nav.Item>
     </Nav>
