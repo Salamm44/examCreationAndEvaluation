@@ -16,39 +16,39 @@ const StyledCheckbox = styled.input.attrs({ type: 'checkbox' })`
 `;
 
 const AnswerOption = ({ index }) => {
-    const [answer, setAnswer] = useState(''); // State for the answer
-    const [isCorrect, setIsCorrect] = useState(false); // State for the checkbox
-    const [isInvalid, setIsInvalid] = useState(false); // State for invalid fields
-  
-    const handleInputChange = (event) => {
-      const newAnswer = event.target.value;
-      setAnswer(newAnswer);
-  
-      if (newAnswer.trim() === '') {
-        setIsInvalid(true);
-      } else {
-        setIsInvalid(false);
-      }
-    };
-  
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-        <label style={{ display: 'flex', width: '100%' }}>
-          <StyledInput
-            type="text"
-            value={answer}
-            onChange={handleInputChange}
-            style={isInvalid ? { borderColor: 'red' } : {}}
-          />
-        </label>
-        <label>
-          <StyledCheckbox
-            onChange={(event) => setIsCorrect(event.target.checked)}
-          />
-        </label>
-      </div>
-    );
+  const [answer, setAnswer] = useState(''); // State for the answer
+  const [isCorrect, setIsCorrect] = useState(false); // State for the checkbox
+  const [isInvalid, setIsInvalid] = useState(false); // State for invalid fields
+
+  const handleInputChange = (event) => {
+    const newAnswer = event.target.value;
+    setAnswer(newAnswer);
+
+    if (newAnswer.trim() === '') {
+      setIsInvalid(true);
+    } else {
+      setIsInvalid(false);
+    }
   };
-  
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+      <label style={{ display: 'flex', width: '100%' }}>
+        <StyledInput
+          type="text"
+          value={answer}
+          onChange={handleInputChange}
+          style={isInvalid ? { borderColor: 'red' } : {}}qu
+          placeholder="Enter answer"
+        />
+      </label>
+      <label>
+        <StyledCheckbox
+          onChange={(event) => setIsCorrect(event.target.checked)}
+        />
+      </label>
+    </div>
+  );
+};
 
 export default AnswerOption;

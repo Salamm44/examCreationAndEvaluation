@@ -32,7 +32,11 @@ const StyledH3 = styled.h3`
     margin-top: 0px;
 `;
 const QuestionForm = ({ numQuestions, numAnswers }) => {
-    const [question, setQuestion] = useState('');
+    const [questions, setQuestions] = useState(Array(numQuestions).fill(''));
+
+    const handleQuestionChange = (index, newQuestion) => {
+        setQuestions(questions.map((question, i) => i === index ? newQuestion : question));
+    };
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -41,13 +45,14 @@ const QuestionForm = ({ numQuestions, numAnswers }) => {
 
     return (
         <StyledForm onSubmit={handleSubmit}>
-            {[...Array(numQuestions)].map((_, i) => (
+            {questions.map((question, i) => (
                 <StyledDiv key={i}>
                     <StyledH3>Question {i + 1}:</StyledH3>
                     <StyledInput
                         type="text"
                         value={question}
-                        onChange={(event) => setQuestion(event.target.value)}
+                        onChange={(event) => handleQuestionChange(i, event.target.value)}
+                        placeholder="Enter question"
                     />
                     {[...Array(numAnswers)].map((_, j) => (
                         <AnswerOption key={j} index={j} />
