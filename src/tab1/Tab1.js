@@ -4,9 +4,10 @@ import {
   faChevronLeft,
   faChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
-import Creation from './tab1/Creation';
+import TestDetails from './TestDetails';
+import TestQuestions from './TestQuestions';
 
-const tabs = ['Test details', 'Test Questions', 'Preview PDF', 'Generate PDF'];
+const tabs = ['Test Details', 'Test Questions', 'Preview PDF', 'Generate PDF'];
 
 const Tab1 = () => {
   const [activePoint, setActivePoint] = useState(tabs[0]);
@@ -72,7 +73,8 @@ const Tab1 = () => {
           <FontAwesomeIcon icon={faChevronRight} />
         </div>
       </div>
-      {activePoint === 'Test details' && <Creation />}
+      {activePoint === 'Test Details' && <TestDetails />}
+      {activePoint === 'Test Questions' && <TestQuestions questions={12}/>}
     </>
   );
 };

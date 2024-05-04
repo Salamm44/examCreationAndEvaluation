@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
 import { Tab, Nav } from 'react-bootstrap';
 import './MainPage.css';
-import Tab1 from './Tab1';
+import Tab1 from './tab1/Tab1';
 import Tab2 from './Tab2';
 import Tab3 from './Tab3';
 

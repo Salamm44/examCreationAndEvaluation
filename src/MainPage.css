@@ -47,7 +47,7 @@ body, html {
     border-top: none;
     padding: 10px;
     background-color: #fff;
-    height: calc(100vh - 50px); /* Adjust as necessary */
+    height: auto; 
     width: 100%;
     margin-top: 16px;
   }

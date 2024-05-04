@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faEdit, faRedo } from '@fortawesome/free-solid-svg-icons';
-import './Creation.css';
+import './TestDetails.css';
 import InputField from '../custom-components/InputField';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import AddQuestions from './AddQuestions';
+import AddQuestions from './TestQuestions';
 import { isFormEmpty } from '../utils/checkFormEmpty';
 
-const Creation = () => {
+const TestDetails = () => {
   const initialForm = {
     organization: localStorage.getItem('organization') || '',
     subject: localStorage.getItem('subject') || '',
@@ -242,4 +242,4 @@ const Creation = () => {
   );
 };
 
-export default Creation;
+export default TestDetails;
