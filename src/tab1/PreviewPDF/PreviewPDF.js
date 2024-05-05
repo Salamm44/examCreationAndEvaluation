@@ -115,7 +115,6 @@ const PreviewPDF = () => {
 
     // Store the Blob in the component's state
     setPdfBlob(urlWithNoToolbar);
-    console.log(blob);
   };
 
   return (

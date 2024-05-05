@@ -123,7 +123,6 @@ const QuestionForm = ({ numQuestions = 0, numAnswers = 0 }) => {
   };
 
   const handleSave = (event) => {
-    console.log("handleSave function is called");
     event.preventDefault();
   
     // Your existing form submission logic here...
