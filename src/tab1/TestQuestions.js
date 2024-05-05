@@ -10,12 +10,12 @@ const StyledDiv = styled.div`
   font-family: 'Helvetica Neue', Arial, sans-serif;
 `;
 
-const StyledRowDiv = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: center
-  width: 100%;
-`;
+// const StyledRowDiv = styled.div`
+//   display: flex;
+//   flex-direction: row;
+//   justify-content: center
+//   width: 100%;
+// `;
 
 const StyledP = styled.p`
   font-size: 20px;
@@ -54,10 +54,10 @@ const TestQuestions = () => {
 
   return (
     <StyledDiv>
-      <StyledRowDiv>
+      {/* <StyledRowDiv>
         <StyledP>Questions: {numQuestions}</StyledP>
         <StyledP>Answers: {numAnswers}</StyledP>
-      </StyledRowDiv>
+      </StyledRowDiv> */}
       <QuestionForm numQuestions={numQuestions} numAnswers={numAnswers} />
     </StyledDiv>
   );
