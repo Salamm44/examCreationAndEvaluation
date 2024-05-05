@@ -6,9 +6,6 @@ import Tab1 from './tab1/Tab1';
 import Tab2 from './Tab2';
 import Tab3 from './Tab3';
 
-const SubTab1 = () => <div>Sub Tab 1 Content</div>;
-const SubTab2 = () => <div>Sub Tab 2 Content</div>;
-
 const MainPage = () => {
     const [activeTab, setActiveTab] = useState('tab1');
     const [activePoint, setActivePoint] = useState('point1'); 
@@ -35,7 +32,7 @@ const MainPage = () => {
       </Nav.Item>
     </Nav>
     <Tab.Content>
-      {activeTab === 'tab1' && <Tab1 activePoint={activePoint} setActivePoint={setActivePoint} />} {/* Pass the props here */}
+      {activeTab === 'tab1' && <Tab1 activePoint={activePoint} setActivePoint={setActivePoint} />} 
       {activeTab === 'tab2' && <Tab2 />}
       {activeTab === 'tab3' && <Tab3 />}
     </Tab.Content>
