@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import QuestionForm from './TestQuestions/QuestionForm';
+import QuestionForm from './QuestionForm';
 
 const StyledDiv = styled.div`
   display: flex;

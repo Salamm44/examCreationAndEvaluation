@@ -4,8 +4,8 @@ import {
   faChevronLeft,
   faChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
-import TestDetails from './TestDetails';
-import TestQuestions from './TestQuestions';
+import TestDetails from './TestDetails/TestDetails';
+import TestQuestions from './TestQuestions/TestQuestions';
 
 const tabs = ['Test Details', 'Test Questions', 'Preview PDF', 'Generate PDF'];
 

@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faEdit, faRedo } from '@fortawesome/free-solid-svg-icons';
 import './TestDetails.css';
-import InputField from '../custom-components/InputField';
+import InputField from '../../custom-components/InputField';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { isFormEmpty } from '../utils/checkFormEmpty';
+import { isFormEmpty } from '../../utils/checkFormEmpty';
 import styled from 'styled-components';
 
 const StyledForm = styled.form`
@@ -17,20 +17,19 @@ const StyledForm = styled.form`
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.2);
   width: 50%;
   margin: auto;
-  margin-top: 20px
+  margin-top: 20px;
 `;
 
+const initialForm = {
+  organization: localStorage.getItem('organization') || '',
+  subject: localStorage.getItem('subject') || '',
+  points: localStorage.getItem('points') || '',
+  date: localStorage.getItem('date') || '',
+  numQuestions: localStorage.getItem('numQuestions') || '',
+  numAnswers: localStorage.getItem('numAnswers') || '',
+};
 
 const TestDetails = () => {
-  const initialForm = {
-    organization: localStorage.getItem('organization') || '',
-    subject: localStorage.getItem('subject') || '',
-    points: localStorage.getItem('points') || '',
-    date: localStorage.getItem('date') || '',
-    numQuestions: localStorage.getItem('numQuestions') || '',
-    numAnswers: localStorage.getItem('numAnswers') || '',
-  };
-
   // initialize form state with data from local storage
   const [form, setForm] = useState(() => {
     const savedForm = localStorage.getItem('form');
@@ -40,6 +39,11 @@ const TestDetails = () => {
       return initialForm;
     }
   });
+
+  // Check if the form is empty
+  const formIsEmpty = isFormEmpty(form);
+
+    
   const [error, setError] = useState({
     organization: false,
     subject: false,
@@ -58,6 +62,7 @@ const TestDetails = () => {
   const [buttonTitle, setButtonTitle] = useState(
     localStorage.getItem('formValues') ? 'Update' : 'Save',
   );
+
 
   const isFormValid = () => {
     return (
@@ -81,6 +86,7 @@ const TestDetails = () => {
         isError = date < now; // date should not be in the past
       }
     }
+
 
     setForm((prevForm) => ({
       ...prevForm,
@@ -171,88 +177,88 @@ const TestDetails = () => {
     setIsSaved(false);
   };
 
-  const formIsEmpty = isFormEmpty(form);
-
   return (
-    <StyledForm>
-      <div className="creation-container">
-        <ToastContainer />
-        <form className="creation-form">
-          <InputField
-            type="text"
-            name="organization"
-            placeholder="Enter organization"
-            initialValue={form.organization}
-            propValue={form.organization}
-            error={error.organization}
-            handleInputChange={handleInputChange}
-          />
-          <InputField
-            type="text"
-            name="subject"
-            placeholder="Test Subject"
-            initialValue={form.subject}
-            propValue={form.subject}
-            error={error.subject}
-            handleInputChange={handleInputChange}
-          />
-          <InputField
-            type="number"
-            name="points"
-            placeholder="Total Points"
-            initialValue={form.points}
-            propValue={form.points}
-            handleInputChange={handleInputChange}
-          />
-          <InputField
-            type="date"
-            name="date"
-            initialValue={form.date}
-            propValue={form.date}
-            handleInputChange={handleInputChange}
-          />
-          <InputField
-            className="input-field-num-qurestions"
-            type="number"
-            name="numQuestions"
-            placeholder="Number of Questions"
-            initialValue={form.numQuestions}
-            propValue={form.numQuestions}
-            handleInputChange={handleInputChange}
-          />
+    <>
+      <StyledForm>
+        <div className="creation-container">
+          <ToastContainer />
+          <form className="creation-form">
+            <InputField
+              type="text"
+              name="organization"
+              placeholder="Enter organization"
+              initialValue={form.organization}
+              propValue={form.organization}
+              error={error.organization}
+              handleInputChange={handleInputChange}
+            />
+            <InputField
+              type="text"
+              name="subject"
+              placeholder="Test Subject"
+              initialValue={form.subject}
+              propValue={form.subject}
+              error={error.subject}
+              handleInputChange={handleInputChange}
+            />
+            <InputField
+              type="number"
+              name="points"
+              placeholder="Total Points"
+              initialValue={form.points}
+              propValue={form.points}
+              handleInputChange={handleInputChange}
+            />
+            <InputField
+              type="date"
+              name="date"
+              initialValue={form.date}
+              propValue={form.date}
+              handleInputChange={handleInputChange}
+            />
+            <InputField
+              className="input-field-num-qurestions"
+              type="number"
+              name="numQuestions"
+              placeholder="Number of Questions"
+              initialValue={form.numQuestions}
+              propValue={form.numQuestions}
+              handleInputChange={handleInputChange}
+            />
 
-          <InputField
-            className="input-field-num-answers"
-            type="number"
-            name="numAnswers"
-            placeholder="Number of Answers"
-            initialValue={form.numAnswers}
-            propValue={form.numAnswers}
-            handleInputChange={handleInputChange}
-          />
+            <InputField
+              className="input-field-num-answers"
+              type="number"
+              name="numAnswers"
+              placeholder="Number of Answers"
+              initialValue={form.numAnswers}
+              propValue={form.numAnswers}
+              handleInputChange={handleInputChange}
+            />
 
-          <div className="control-buttons-container">
-            <button
-              type="button"
-              className="creation-button reset-button"
-              onClick={resetForm}
-            >
-              <FontAwesomeIcon icon={faRedo} /> Reset
-            </button>
+            <div className="control-buttons-container">
+              <button
+                type="button"
+                className="creation-button reset-button"
+                onClick={resetForm}
+              >
+                <FontAwesomeIcon icon={faRedo} /> Reset
+              </button>
 
-            <button
-              type="submit"
-              className="creation-button"
-              onClick={saveData}
-              disabled={!isFormValid() || (isSaved && formIsEmpty)}
-            >
-              <FontAwesomeIcon icon={isSaved ? faEdit : faSave} />{' '}
-              {isSaved ? 'Update' : 'Save'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </StyledForm>
+              <button
+                type="submit"
+                className="creation-button"
+                onClick={saveData}
+                disabled={!isFormValid() || (isSaved && formIsEmpty)}
+              >
+                <FontAwesomeIcon icon={isSaved ? faEdit : faSave} />{' '}
+                {isSaved ? 'Update' : 'Save'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </StyledForm>
+    </>
   );
 };
 
