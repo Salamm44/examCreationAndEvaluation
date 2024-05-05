@@ -12,10 +12,12 @@ const StyledForm = styled.form`
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.2);
   width: 50%;
+  height: 480px;
   margin: auto;
   margin-top: 20px;
 `;
@@ -181,7 +183,6 @@ const TestDetails = () => {
     <>
       <StyledForm>
         <div className="creation-container">
-          <ToastContainer />
           <form className="creation-form">
             <InputField
               type="text"

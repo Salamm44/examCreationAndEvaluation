@@ -6,6 +6,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import TestDetails from './TestDetails/TestDetails';
 import TestQuestions from './TestQuestions/TestQuestions';
+import PreviewPDF from './PreviewPDF/PreviewPDF';
 
 const tabs = ['Test Details', 'Test Questions', 'Preview PDF', 'Generate PDF'];
 
@@ -74,7 +75,8 @@ const Tab1 = () => {
         </div>
       </div>
       {activePoint === 'Test Details' && <TestDetails />}
-      {activePoint === 'Test Questions' && <TestQuestions questions={12}/>}
+      {activePoint === 'Test Questions' && <TestQuestions/>}
+      {activePoint === 'Preview PDF' && <PreviewPDF/>}
     </>
   );
 };

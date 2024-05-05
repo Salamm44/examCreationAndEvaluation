@@ -43,7 +43,7 @@ body, html {
   }
   
   .tab-content {
-    border: 1px solid #dee2e6;
+    border: 0px solid #fff;
     border-top: none;
     padding: 10px;
     background-color: #fff;

@@ -2,15 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { faSave, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { toast } from 'react-toastify';
 
 const StyledForm = styled.form`
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.2);
   width: 50%;
+  height: auto;
   margin: auto;
 `;
 
@@ -119,13 +122,26 @@ const QuestionForm = ({ numQuestions = 0, numAnswers = 0 }) => {
     );
   };
 
-  const handleSubmit = (event) => {
+  const handleSave = (event) => {
+    console.log("handleSave function is called");
     event.preventDefault();
-    // TODO: Handle the form submission
+  
+    // Your existing form submission logic here...
+  
+    // Convert the questions and answers arrays to JSON strings
+    const questionsJSON = JSON.stringify(questions);
+    const answersJSON = JSON.stringify(answers);
+  
+    // Save the JSON strings to localStorage
+    localStorage.setItem('questions', questionsJSON);
+    localStorage.setItem('answers', answersJSON);
+  
+    // Show a success message
+    toast.success('Questions and answers saved successfully!');
   };
 
   return (
-    <StyledForm onSubmit={handleSubmit}>
+    <StyledForm onSubmit={handleSave}>
       {questions.map((question, i) => (
         <StyledQuestionBlock key={i}>
           <StyledH3>Question {i + 1}:</StyledH3>
