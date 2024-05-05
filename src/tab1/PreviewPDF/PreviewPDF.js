@@ -1,7 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye } from '@fortawesome/free-solid-svg-icons';
+import { Document, Page } from 'react-pdf';
+import { jsPDF } from 'jspdf';
+import { GlobalWorkerOptions } from 'pdfjs-dist';
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
+
+GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 const StyledDiv = styled.div`
   display: flex;
@@ -25,10 +31,10 @@ const StyledButton = styled.button`
   display: inline-block; // This will make the button only as wide as its content
 `;
 
-const StyledForm = styled.form`
+const StyledBlock = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: center; 
+  justify-content: center;
   align-items: center;
   padding: 20px;
   border-radius: 5px;
@@ -39,16 +45,94 @@ const StyledForm = styled.form`
 `;
 
 const PreviewPDF = () => {
+  const [pdfBlob, setPdfBlob] = useState(null);
+  const generatePDF = async () => {
+    // Retrieve the questions and answers from localStorage
+    const questions = JSON.parse(localStorage.getItem('questions'));
+    const answers = JSON.parse(localStorage.getItem('answers'));
+    const testDetails = JSON.parse(localStorage.getItem('form'));
+
+    const doc = new jsPDF();
+
+    // Set the text color to light gray and the size to 10
+    doc.setTextColor(169, 169, 169); // RGB value for light gray
+    doc.setFontSize(12);
+
+    // Add the form values to the PDF
+    let y = 10; // Initialize y
+    const keys = Object.keys(testDetails).slice(0, -2); // Get all keys except the last two
+    keys.forEach((key) => {
+      doc.text(`${key}: ${testDetails[key]}`, 5, y);
+      y += 5;
+    });
+
+    // Reset the text color to black and the size to 12
+    doc.setTextColor(0, 0, 0); // RGB value for black
+    doc.setFontSize(12);
+
+    // Add a space before the questions and answers
+    y += 10;
+
+    questions.forEach((question, index) => {
+      // Ensure the question is a string
+      const questionText = question.text ? question.text : question;
+      if (typeof questionText !== 'string') {
+        console.error('Question is not a string:', question);
+        return;
+      }
+    
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const textWidth = doc.getStringUnitWidth(questionText) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+      const textX = 10;
+      doc.text(questionText, textX, y);
+      y += 10; // Increase the y-coordinate by 10 for each question
+    
+      answers[index].forEach((answer) => {
+        // Check if answer is an object and has a text property
+        if (typeof answer === 'object' && answer.text) {
+          // Draw an empty checkbox before the answer
+          doc.rect(15, y - 3, 3, 3);
+          doc.text(answer.text, 20, y); // Indent the answer
+          y += 5; // Increase the y-coordinate by 5 for each answer
+        } else {
+          console.error('Answer is not a string:', answer);
+        }
+      });
+    });
+
+    // Stop download a file
+    //doc.save('test.pdf');
+
+    // Generate the PDF as a Blob instead of saving it
+    const blob = new Blob([doc.output('arraybuffer')], { type: 'application/pdf' });
+    
+
+    // Create a URL from the Blob
+    const url = URL.createObjectURL(blob);
+
+    // Add #toolbar=0 to the URL to hide the toolbar
+    const urlWithNoToolbar = url + '#toolbar=0';
+
+    // Store the Blob in the component's state
+    setPdfBlob(urlWithNoToolbar);
+    console.log(blob);
+  };
+
   return (
     <StyledDiv>
-      <StyledForm>
-        <StyledButton>
+      <StyledBlock>
+      {pdfBlob ? (
+        // If the PDF has been generated, display it
+        <iframe src={pdfBlob} type="application/pdf" width="100%" height="600px" />
+      ) : (
+        <StyledButton onClick={generatePDF}>
           <span style={{ marginRight: '8px' }}>
             <FontAwesomeIcon icon={faEye} />
           </span>
           Preview PDF
         </StyledButton>
-      </StyledForm>
+      )}
+      </StyledBlock>
     </StyledDiv>
   );
 };
