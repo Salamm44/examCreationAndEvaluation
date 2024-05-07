@@ -3,6 +3,7 @@
     flex-direction: column;
     width: 100% !important;
     align-items: center;
+    margin-top: 8px;
 }
 
 .creation-input {

@@ -3,10 +3,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faEdit, faRedo } from '@fortawesome/free-solid-svg-icons';
 import './TestDetails.css';
 import InputField from '../../custom-components/InputField';
-import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { isFormEmpty } from '../../utils/checkFormEmpty';
 import styled from 'styled-components';
+import { toast } from 'react-toastify';
 
 const StyledForm = styled.form`
   display: flex;
@@ -22,30 +22,25 @@ const StyledForm = styled.form`
   margin-top: 20px;
 `;
 
-const initialForm = {
-  organization: localStorage.getItem('organization') || '',
-  subject: localStorage.getItem('subject') || '',
-  points: localStorage.getItem('points') || '',
-  date: localStorage.getItem('date') || '',
-  numQuestions: localStorage.getItem('numQuestions') || '',
-  numAnswers: localStorage.getItem('numAnswers') || '',
-};
-
 const TestDetails = () => {
   // initialize form state with data from local storage
   const [form, setForm] = useState(() => {
+    const initialForm = {
+      organization: localStorage.getItem('organization') || '',
+      subject: localStorage.getItem('subject') || '',
+      points: localStorage.getItem('points') || '',
+      date: localStorage.getItem('date') || '',
+      numQuestions: localStorage.getItem('numQuestions') || '',
+      numAnswers: localStorage.getItem('numAnswers') || '',
+    };
+
     const savedForm = localStorage.getItem('form');
-    if (savedForm) {
-      return JSON.parse(savedForm);
-    } else {
-      return initialForm;
-    }
+    return savedForm ? JSON.parse(savedForm) : initialForm;
   });
 
   // Check if the form is empty
   const formIsEmpty = isFormEmpty(form);
 
-    
   const [error, setError] = useState({
     organization: false,
     subject: false,
@@ -60,93 +55,88 @@ const TestDetails = () => {
     return saved ? JSON.parse(saved) : false;
   });
 
-  const [savedData, setSavedData] = useState(null);
   const [buttonTitle, setButtonTitle] = useState(
     localStorage.getItem('formValues') ? 'Update' : 'Save',
   );
 
+  useEffect(() => {
+    setButtonTitle(isFormValid() ? 'Update' : 'Save');
+  }, [form, error]);
 
-  const isFormValid = () => {
-    return (
-      Object.values(form).every(
+const isFormValid = () => {
+    const isOrganizationValid = isNaN(form.organization);
+    const isSubjectValid = isNaN(form.subject);
+    const isPointsValid = !isNaN(form.points) && form.points > 0;
+    const isDateValid = form.date !== '';
+    const isNumQuestionsValid = !isNaN(form.numQuestions) && form.numQuestions > 0;
+    const isNumAnswersValid = !isNaN(form.numAnswers) && form.numAnswers > 0;
+
+    const areFieldsFilled = Object.values(form).every(
         (x) => x !== '' && x !== null && x !== undefined,
-      ) && !Object.values(error).some((e) => e)
     );
-  };
+
+    const noErrors = !Object.values(error).some((e) => e);
+
+    return isOrganizationValid && isSubjectValid && isPointsValid && isDateValid && isNumQuestionsValid && isNumAnswersValid && areFieldsFilled && noErrors;
+};
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    let isError =
-      (name === 'organization' || name === 'subject') &&
-      (/^\d+$/.test(value) || value.length < 3);
+    setForm((prevForm) => ({ ...prevForm, [name]: value })); // set the form field value to the input value
 
-    if (name === 'date') {
-      isError = value === '' || value === 'tt.mm.jjjj'; // date should not be empty or placeholder
-      if (!isError) {
-        const date = new Date(value);
-        const now = new Date();
-        isError = date < now; // date should not be in the past
-      }
-    }
+    let isError = isFieldInvalid(name, value); // check if the field is invalid
 
-
-    setForm((prevForm) => ({
-      ...prevForm,
-      [name]: value,
-    }));
-
-    setError((prevError) => ({
-      ...prevError,
-      [name]: isError,
-    }));
+    setError((prevError) => {
+      const newError = {
+        ...prevError,
+        [name]: isError,
+      };
+      return newError;
+    });
   };
 
-  const saveData = (event) => {
+  const isFieldInvalid = (name, value) => {
+    let isError = false;
+
+    // Check if the value is empty
+    isError = value === '';
+
+    return isError;
+  };
+
+  const handleSave = (event) => {
     event.preventDefault();
 
     // validate the form data
     const isError = Object.values(error).some((e) => e);
     if (isError) {
-      // show an error toast notification
       toast.error('There was an error in the form data.', {
         position: 'bottom-center',
       });
       return;
     }
 
-    // save the form data
-    setSavedData(form);
+    // Update localStorage with the form data
+    localStorage.setItem('form', JSON.stringify(form));
 
     // save the isSaved state
     localStorage.setItem('isSaved', true);
     setIsSaved(true);
 
     // show a proper toast notification
-    if (buttonTitle === 'Save') {
-      toast.success('Data saved successfully!', {
-        position: 'bottom-center',
-        autoClose: 1000,
-        onClose: () => {
-          setIsSaved(true);
-          setButtonTitle('Update');
-        },
-      });
-    } else {
-      toast.warn('Data updated successfully!', {
-        position: 'bottom-center',
-        autoClose: 1000,
-        onClose: () => {
-          setIsSaved(true);
-          setButtonTitle('Update');
-        },
-      });
-    }
+    const successMessage =
+      buttonTitle === 'Save'
+        ? 'Data saved successfully!'
+        : 'Data updated successfully!';
+    toast.success(successMessage, {
+      position: 'bottom-center',
+      autoClose: 1000,
+      onClose: () => {
+        setIsSaved(true);
+        setButtonTitle('Update');
+      },
+    });
   };
-
-  // save form data in local storage when form state changes
-  useEffect(() => {
-    localStorage.setItem('form', JSON.stringify(form));
-  }, [form]);
 
   // Add this function to handle the reset action
   const resetForm = () => {
@@ -183,80 +173,83 @@ const TestDetails = () => {
     <>
       <StyledForm>
         <div className="creation-container">
-          <form className="creation-form">
-            <InputField
-              type="text"
-              name="organization"
-              placeholder="Enter organization"
-              initialValue={form.organization}
-              propValue={form.organization}
-              error={error.organization}
-              handleInputChange={handleInputChange}
-            />
-            <InputField
-              type="text"
-              name="subject"
-              placeholder="Test Subject"
-              initialValue={form.subject}
-              propValue={form.subject}
-              error={error.subject}
-              handleInputChange={handleInputChange}
-            />
-            <InputField
-              type="number"
-              name="points"
-              placeholder="Total Points"
-              initialValue={form.points}
-              propValue={form.points}
-              handleInputChange={handleInputChange}
-            />
-            <InputField
-              type="date"
-              name="date"
-              initialValue={form.date}
-              propValue={form.date}
-              handleInputChange={handleInputChange}
-            />
-            <InputField
-              className="input-field-num-qurestions"
-              type="number"
-              name="numQuestions"
-              placeholder="Number of Questions"
-              initialValue={form.numQuestions}
-              propValue={form.numQuestions}
-              handleInputChange={handleInputChange}
-            />
+          <InputField
+            type="text"
+            name="organization"
+            placeholder="Enter organization"
+            initialValue={form.organization}
+            propValue={form.organization}
+            error={error.organization}
+            handleInputChange={handleInputChange}
+          />
+          <InputField
+            type="text"
+            name="subject"
+            placeholder="Test Subject"
+            initialValue={form.subject}
+            propValue={form.subject}
+            error={error.subject}
+            handleInputChange={handleInputChange}
+          />
+          <InputField
+            type="number"
+            name="points"
+            placeholder="Total Points"
+            initialValue={form.points}
+            propValue={form.points}
+            handleInputChange={handleInputChange}
+          />
+          <InputField
+            type="date"
+            name="date"
+            initialValue={form.date}
+            propValue={form.date}
+            handleInputChange={handleInputChange}
+          />
 
-            <InputField
-              className="input-field-num-answers"
-              type="number"
-              name="numAnswers"
-              placeholder="Number of Answers"
-              initialValue={form.numAnswers}
-              propValue={form.numAnswers}
-              handleInputChange={handleInputChange}
-            />
+          <InputField
+            className="input-field-num-qurestions"
+            type="number"
+            name="numQuestions"
+            placeholder="Number of Questions"
+            initialValue={form.numQuestions}
+            propValue={form.numQuestions}
+            handleInputChange={handleInputChange}
+            disabled={isSaved}
+            hint="Update question count on Test Questions page"
+          />
 
-            <div className="control-buttons-container">
-              <button
-                type="button"
-                className="creation-button reset-button"
-                onClick={resetForm}
-              >
-                <FontAwesomeIcon icon={faRedo} /> Reset
-              </button>
+          <InputField
+            className="input-field-num-answers"
+            type="number"
+            name="numAnswers"
+            placeholder="Number of Answers"
+            initialValue={form.numAnswers}
+            propValue={form.numAnswers}
+            handleInputChange={handleInputChange}
+            disabled={isSaved}
+            hint="Update answer count on Test Questions page"
+          />
 
-              <button
-                type="submit"
-                className="creation-button"
-                onClick={saveData}
-                disabled={!isFormValid() || (isSaved && formIsEmpty)}
-              >
-                <FontAwesomeIcon icon={isSaved ? faEdit : faSave} />{' '}
-                {isSaved ? 'Update' : 'Save'}
-              </button>
-            </div>
-          </form>
+          <div className="control-buttons-container">
+            <button
+              type="button"
+              className="creation-button reset-button"
+              onClick={resetForm}
+            >
+              <FontAwesomeIcon icon={faRedo} /> Reset
+            </button>
+
+            <button
+              type="submit"
+              className="creation-button"
+              onClick={handleSave}
+              disabled={!isFormValid() || formIsEmpty}
+            >
+              <FontAwesomeIcon icon={isSaved ? faEdit : faSave} />{' '}
+              {isSaved ? 'Update' : 'Save'}
+            </button>
+          </div>
         </div>
       </StyledForm>
     </>
