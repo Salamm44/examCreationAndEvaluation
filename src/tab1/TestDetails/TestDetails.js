@@ -186,7 +186,7 @@ const isFormValid = () => {
           <InputField
             type="text"
             name="subject"
-            placeholder="Test Subject"
+            placeholder="Enter Test Subject"
             initialValue={form.subject}
             propValue={form.subject}
             error={error.subject}
@@ -195,7 +195,7 @@ const isFormValid = () => {
           <InputField
             type="number"
             name="points"
-            placeholder="Total Points"
+            placeholder="Enter the Total Points"
             initialValue={form.points}
             propValue={form.points}
             handleInputChange={handleInputChange}
@@ -203,6 +203,7 @@ const isFormValid = () => {
           <InputField
             type="date"
             name="date"
+            placeholder="Enter Date"
             initialValue={form.date}
             propValue={form.date}
             handleInputChange={handleInputChange}
