@@ -18,7 +18,7 @@ const StyledDiv = styled.div`
 `;
 
 const StyledButton = styled.button`
-  background-color: #4caf50;
+  background-color: #8C0303;
   border: none;
   color: white;
   padding: 10px 20px;
