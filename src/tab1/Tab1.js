@@ -8,7 +8,12 @@ import TestDetails from './TestDetails/TestDetails';
 import TestQuestions from './TestQuestions/TestQuestions';
 import PreviewPDF from './PreviewPDF/PreviewPDF';
 
-const tabs = ['Test Details', 'Test Questions', 'Preview PDF', 'Generate PDF'];
+const tabs = ['Test Details', 'Test Questions', 'Preview & Download PDF'];
+const components = {
+  'Test Details': <TestDetails />,
+  'Test Questions': <TestQuestions />,
+  'Preview & Download PDF': <PreviewPDF />
+};
 
 const Tab1 = () => {
   const [activePoint, setActivePoint] = useState(tabs[0]);
@@ -48,9 +53,9 @@ const Tab1 = () => {
           <FontAwesomeIcon icon={faChevronLeft} />
         </div>
         <div className="progress-line">
-          {tabs.map((point) => (
+          {tabs.map((point, index) => (
             <div
-              key={point}
+              key={index}
               className={`progress-step ${
                 activePoint === point ? 'active' : ''
               }`}
@@ -65,7 +70,7 @@ const Tab1 = () => {
               }}
             >
               {(activePoint === point || visitedPoints.includes(point)) && (
-                <div>{point}</div>
+                <div key={index + 'a'}>{index + 1}</div>
               )}
             </div>
           ))}
@@ -74,9 +79,7 @@ const Tab1 = () => {
           <FontAwesomeIcon icon={faChevronRight} />
         </div>
       </div>
-      {activePoint === 'Test Details' && <TestDetails />}
-      {activePoint === 'Test Questions' && <TestQuestions/>}
-      {activePoint === 'Preview PDF' && <PreviewPDF/>}
+      {components[activePoint]}
     </>
   );
 };

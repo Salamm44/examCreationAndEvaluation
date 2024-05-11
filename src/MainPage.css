@@ -56,19 +56,22 @@ body, html {
     display: flex;
     justify-content: center;
     align-items: center;
+    
   }
-  
   .progress-step {
-    width: 120px; 
-    height: 30px;
-    margin: 10px;
+    width: 50px;
+    height: 50px;
     background-color: #ccc;
-    border-radius: 5px; 
-    cursor: pointer;
+    border: none;
+    border-radius: 50%;
+    display: inline-block;
     display: flex;
     justify-content: center;
     align-items: center;
+    margin: 0 16px;
+    font-size: 16px;
     font-weight: bold;
+    cursor: pointer; 
   }
   
   .progress-step.active {
@@ -90,9 +93,10 @@ body, html {
   .arrow {
     cursor: pointer;
     margin: 0 20px;
-    font-size: 24px; 
+    font-size: 16px; 
     color: #C0091E;
   }
+
   .disabled {
     pointer-events: none;
     color: #ccc;

@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye } from '@fortawesome/free-solid-svg-icons';
-import { Document, Page } from 'react-pdf';
 import { jsPDF } from 'jspdf';
 import { GlobalWorkerOptions } from 'pdfjs-dist';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
+import useLocalStorage from '../TestQuestions/useLocalStorage';
 
 GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
@@ -25,10 +25,15 @@ const StyledButton = styled.button`
   font-size: 16px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  white-space: nowrap; // This will prevent the text from wrapping to the next line
-  overflow: hidden; // This will hide any text that overflows the button
-  text-overflow: ellipsis; // This will add an ellipsis (...) to any text that overflows the button
-  display: inline-block; // This will make the button only as wide as its content
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+  display: inline-block; 
+
+  &:disabled {
+    background-color: gray;
+    cursor: not-allowed;
+  }
 `;
 
 const StyledBlock = styled.div`
@@ -46,10 +51,12 @@ const StyledBlock = styled.div`
 
 const PreviewPDF = () => {
   const [pdfBlob, setPdfBlob] = useState(null);
+  const [questions, setQuestions] = useLocalStorage('questions', []);
+  const [answers, serAnswers] = useLocalStorage('answers', []);
+  const isPreviewDisabled = () =>  questions.length === 0 || answers.length === 0;
+
   const generatePDF = async () => {
-    // Retrieve the questions and answers from localStorage
-    const questions = JSON.parse(localStorage.getItem('questions'));
-    const answers = JSON.parse(localStorage.getItem('answers'));
+
     const testDetails = JSON.parse(localStorage.getItem('form'));
 
     const doc = new jsPDF();
@@ -111,7 +118,7 @@ const PreviewPDF = () => {
     const url = URL.createObjectURL(blob);
 
     // Add #toolbar=0 to the URL to hide the toolbar
-    const urlWithNoToolbar = url + '#toolbar=0';
+    const urlWithNoToolbar = url + '#toolbar=1';
 
     // Store the Blob in the component's state
     setPdfBlob(urlWithNoToolbar);
@@ -124,12 +131,15 @@ const PreviewPDF = () => {
         // If the PDF has been generated, display it
         <iframe src={pdfBlob} type="application/pdf" width="100%" height="600px" />
       ) : (
-        <StyledButton onClick={generatePDF}>
+        <>
+        {isPreviewDisabled() && <p style={{ color: 'red' }}>Please fill out all questions to enable PDF preview</p>}
+        <StyledButton onClick={generatePDF} disabled={isPreviewDisabled()}>
           <span style={{ marginRight: '8px' }}>
             <FontAwesomeIcon icon={faEye} />
           </span>
           Preview PDF
         </StyledButton>
+        </>
       )}
       </StyledBlock>
     </StyledDiv>

@@ -164,6 +164,10 @@ const isFormValid = () => {
     // Remove the form data from local storage
     localStorage.removeItem('form');
 
+    // Clear questions and answers from localStorage
+    localStorage.removeItem('questions');
+    localStorage.removeItem('answers');
+
     // reset the isSaved state
     localStorage.setItem('isSaved', false);
     setIsSaved(false);
