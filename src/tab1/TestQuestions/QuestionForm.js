@@ -74,7 +74,6 @@ const Line = styled.hr`
 `;
 
 const QuestionForm = ({ numQuestions = 0, numAnswers = 0 }) => {
-
   const [questions, setQuestions] = useLocalStorage('questions', []);
   const [answers, setAnswers] = useLocalStorage('answers', []);
 
@@ -114,24 +113,43 @@ const QuestionForm = ({ numQuestions = 0, numAnswers = 0 }) => {
         answerBlock.some((answer) => answer.isCorrect),
       ),
     );
-  }, [ answers]);
+  }, [answers]);
 
-  const handleQuestionChange = useCallback((i, value) => {
-    setQuestions((prevQuestions) => {
-      const newQuestions = [...prevQuestions];
-      newQuestions[i].text = value;
-      return newQuestions;
-    });
-  }, []);
+  const handleQuestionChange = useCallback(
+    (i, value) => {
+      setQuestions((prevQuestions) => {
+        const newQuestions = [...prevQuestions];
+        if (newQuestions[i]) {
+          newQuestions[i].text = value;
+        } else {
+          // If newQuestions[i] is undefined, create a new object with the text property
+          newQuestions[i] = { text: value };
+        }
+        return newQuestions;
+      });
+    },
+    [setQuestions],
+  );
 
-  const handleAnswerChange = useCallback((i, j, value, isCorrect) => {
-    setAnswers((prevAnswers) => {
-      const newAnswers = [...prevAnswers];
-      newAnswers[i][j].text = value;
-      newAnswers[i][j].isCorrect = isCorrect;
-      return newAnswers;
-    });
-  }, []);
+  const handleAnswerChange = useCallback(
+    (i, j, value, isCorrect) => {
+      setAnswers((prevAnswers) => {
+        const newAnswers = [...prevAnswers];
+        if (newAnswers[i] && newAnswers[i][j]) {
+          newAnswers[i][j].text = value;
+          newAnswers[i][j].isCorrect = isCorrect;
+        } else {
+          // If newAnswers[i][j] is undefined, create a new object with the text and isCorrect properties
+          if (!newAnswers[i]) {
+            newAnswers[i] = [];
+          }
+          newAnswers[i][j] = { text: value, isCorrect };
+        }
+        return newAnswers;
+      });
+    },
+    [setAnswers],
+  );
 
   const handleSave = (event) => {
     event.preventDefault();
@@ -156,14 +174,19 @@ const QuestionForm = ({ numQuestions = 0, numAnswers = 0 }) => {
     setShowLoading(questions.length === 0);
   }, [questions]);
 
-  const isDisabled = () => !areQuestionsEntered || !areAnswersEntered || !isCheckboxChecked || showLoading;
+  const isDisabled = () =>
+    !areQuestionsEntered ||
+    !areAnswersEntered ||
+    !isCheckboxChecked ||
+    showLoading;
 
   return (
     <StyledForm onSubmit={handleSave}>
       {questions.length === 0 ? (
         <p>Loading...</p>
       ) : (
-        questions && questions.map((question, qIndex) => (
+        questions &&
+        questions.map((question, qIndex) => (
           <>
             <React.Fragment key={`question-${qIndex}`}>
               <StyledQuestionBlock key={`question-block-${qIndex}`}>
@@ -176,58 +199,53 @@ const QuestionForm = ({ numQuestions = 0, numAnswers = 0 }) => {
                   }
                   placeholder="Enter question"
                 />
-                {answers[qIndex] && answers[qIndex].map((answer, aIndex) => (
-                  <React.Fragment key={`answer-${qIndex}-${aIndex}`}>
-                    <StyledAnswerBlock key={`question-block-${qIndex}`}>
-                      <StyledInput
-                        type="text"
-                        value={answer.text}
-                        onChange={(event) =>
-                          handleAnswerChange(
-                            qIndex,
-                            aIndex,
-                            event.target.value,
-                            answer.isCorrect,
-                          )
-                        }
-                        placeholder="Enter answer"
-                      />
-                      <StyledCheckbox
-                        checked={answer.isCorrect}
-                        onChange={(event) =>
-                          handleAnswerChange(
-                            qIndex,
-                            aIndex,
-                            answer.text,
-                            event.target.checked,
-                          )
-                        }
-                      />
-                    </StyledAnswerBlock>
-                  </React.Fragment>
-                ))}
+                {answers[qIndex] &&
+                  answers[qIndex].map((answer, aIndex) => (
+                    <React.Fragment key={`answer-${qIndex}-${aIndex}`}>
+                      <StyledAnswerBlock key={`question-block-${qIndex}`}>
+                        <StyledInput
+                          type="text"
+                          value={answer.text}
+                          onChange={(event) =>
+                            handleAnswerChange(
+                              qIndex,
+                              aIndex,
+                              event.target.value,
+                              answer.isCorrect,
+                            )
+                          }
+                          placeholder="Enter answer"
+                        />
+                        <StyledCheckbox
+                          checked={answer.isCorrect}
+                          onChange={(event) =>
+                            handleAnswerChange(
+                              qIndex,
+                              aIndex,
+                              answer.text,
+                              event.target.checked,
+                            )
+                          }
+                        />
+                      </StyledAnswerBlock>
+                    </React.Fragment>
+                  ))}
               </StyledQuestionBlock>
             </React.Fragment>
 
             <StyledQuestionBlock>
               <div style={{ width: '100%', textAlign: 'left' }}>
-                <StyledValidationRule
-                  validationmet={areQuestionsEntered}
-                >
+                <StyledValidationRule validationmet={areQuestionsEntered}>
                   <StyledIcon icon={areQuestionsEntered ? faCheck : faTimes} />{' '}
                   All questions must be entered.
                 </StyledValidationRule>
 
-                <StyledValidationRule
-                  validationmet={areAnswersEntered}
-                >
+                <StyledValidationRule validationmet={areAnswersEntered}>
                   <StyledIcon icon={areAnswersEntered ? faCheck : faTimes} />{' '}
                   All answers must be entered.
                 </StyledValidationRule>
 
-                <StyledValidationRule
-                  validationmet={isCheckboxChecked}
-                >
+                <StyledValidationRule validationmet={isCheckboxChecked}>
                   <StyledIcon icon={isCheckboxChecked ? faCheck : faTimes} /> At
                   least one checkbox in each question must be checked.
                 </StyledValidationRule>
@@ -239,11 +257,7 @@ const QuestionForm = ({ numQuestions = 0, numAnswers = 0 }) => {
         ))
       )}
 
-      <button
-        type="submit"
-        className="creation-button"
-        disabled={isDisabled()}
-      >
+      <button type="submit" className="creation-button" disabled={isDisabled()}>
         <FontAwesomeIcon icon={faSave} /> Save
       </button>
     </StyledForm>
