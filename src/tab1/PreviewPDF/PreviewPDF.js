@@ -5,7 +5,7 @@ import { faEye } from '@fortawesome/free-solid-svg-icons';
 import { jsPDF } from 'jspdf';
 import { GlobalWorkerOptions } from 'pdfjs-dist';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
-import useLocalStorage from '../TestQuestions/useLocalStorage';
+import useLocalStorage from '../hooks/useLocalStorage';
 
 GlobalWorkerOptions.workerSrc = pdfjsWorker;
 

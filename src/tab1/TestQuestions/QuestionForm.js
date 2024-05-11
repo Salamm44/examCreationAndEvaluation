@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
-import useLocalStorage from './useLocalStorage';
+import useLocalStorage from '../hooks/useLocalStorage';
 
 const StyledForm = styled.form`
   display: flex;
