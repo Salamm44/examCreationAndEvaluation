@@ -77,10 +77,11 @@ const QuestionForm = ({ numQuestions = 0, numAnswers = 0 }) => {
   const [questions, setQuestions] = useLocalStorage('questions', []);
   const [answers, setAnswers] = useLocalStorage('answers', []);
 
-  useEffect(() => {
+ useEffect(() => {
+  // Only set initialQuestions and initialAnswers if local storage is empty
+  if (questions.length === 0 && answers.length === 0) {
     const initialQuestions = Array.from({ length: numQuestions }, () => ({
       text: '',
-      isCorrect: false,
     }));
 
     const initialAnswers = Array.from({ length: numQuestions }, () =>
@@ -92,7 +93,8 @@ const QuestionForm = ({ numQuestions = 0, numAnswers = 0 }) => {
 
     setQuestions(initialQuestions);
     setAnswers(initialAnswers);
-  }, [numQuestions, numAnswers]);
+  }
+}, [numQuestions, numAnswers, questions, answers, setQuestions, setAnswers]);
 
   const [areQuestionsEntered, setAreQuestionsEntered] = useState(false);
   const [areAnswersEntered, setAreAnswersEntered] = useState(false);
