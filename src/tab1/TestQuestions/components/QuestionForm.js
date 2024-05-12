@@ -54,7 +54,6 @@ const QuestionForm = ({ numQuestions = 0, numAnswers = 0, formProp, updateForm})
 
   useEffect(() => {
     setForm(formProp);
-    console.log({formProp});
   }, [formProp, setForm]);
 
 
