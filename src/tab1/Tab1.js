@@ -19,39 +19,9 @@ const Tab1 = () => {
   const [activePoint, setActivePoint] = useState(tabs[0]);
   const [visitedPoints, setVisitedPoints] = useState([]);
 
-  const goRight = () => {
-    const currentIndex = tabs.indexOf(activePoint);
-    if (currentIndex < tabs.length - 1) {
-      if (!visitedPoints.includes(activePoint)) {
-        setVisitedPoints((prevVisitedPoints) => [
-          ...prevVisitedPoints,
-          activePoint,
-        ]);
-      }
-      const nextPoint = tabs[currentIndex + 1];
-      setActivePoint(nextPoint);
-    }
-  };
-
-  const goLeft = () => {
-    const currentIndex = tabs.indexOf(activePoint);
-    if (currentIndex > 0) {
-      if (!visitedPoints.includes(activePoint)) {
-        setVisitedPoints((prevVisitedPoints) => [
-          ...prevVisitedPoints,
-          activePoint,
-        ]);
-      }
-      setActivePoint(tabs[currentIndex - 1]);
-    }
-  };
-
   return (
     <>
       <div className="progress-container">
-        <div className="arrow left-arrow" onClick={goLeft}>
-          <FontAwesomeIcon icon={faChevronLeft} />
-        </div>
         <div className="progress-line">
           {tabs.map((point, index) => (
             <div
@@ -74,9 +44,6 @@ const Tab1 = () => {
               )}
             </div>
           ))}
-        </div>
-        <div className="arrow right-arrow" onClick={goRight}>
-          <FontAwesomeIcon icon={faChevronRight} />
         </div>
       </div>
       {components[activePoint]}
