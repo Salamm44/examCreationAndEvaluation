@@ -72,7 +72,7 @@ const PreviewPDF = () => {
 
     // Add the form values to the PDF
     let y = 10; // Initialize y
-    const keys = Object.keys(testDetails).slice(0, -2); // Get all keys except the last two
+    const keys = Object.keys(testDetails).slice(1, -2); // Get all keys except the last two
     keys.forEach((key) => {
       doc.text(`${key}: ${testDetails[key]}`, 5, y);
       y += 5;
@@ -115,7 +115,6 @@ const PreviewPDF = () => {
 
     // Generate the PDF as a Blob instead of saving it
     const blob = new Blob([doc.output('arraybuffer')], { type: 'application/pdf' });
-    
 
     // Create a URL from the Blob
     const url = URL.createObjectURL(blob);
