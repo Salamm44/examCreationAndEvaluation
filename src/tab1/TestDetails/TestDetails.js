@@ -107,15 +107,6 @@ const isFormValid = () => {
   const handleSave = (event) => {
     event.preventDefault();
 
-    // validate the form data
-    const isError = Object.values(error).some((e) => e);
-    if (isError) {
-      toast.error('There was an error in the form data.', {
-        position: 'bottom-center',
-      });
-      return;
-    }
-
     // Update localStorage with the form data
     localStorage.setItem('form', JSON.stringify(form));
 

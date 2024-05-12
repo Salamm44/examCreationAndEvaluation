@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import QuestionForm from './QuestionForm';
+import QuestionForm from './components/QuestionForm';
 
 const StyledDiv = styled.div`
   display: flex;
@@ -58,7 +58,7 @@ const TestQuestions = () => {
         <StyledP>Questions: {numQuestions}</StyledP>
         <StyledP>Answers: {numAnswers}</StyledP>
       </StyledRowDiv> 
-      <QuestionForm numQuestions={numQuestions} numAnswers={numAnswers} />
+        <QuestionForm numQuestions={numQuestions} numAnswers={numAnswers} />
     </StyledDiv>
   );
 };
