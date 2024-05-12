@@ -49,6 +49,11 @@ const StyledBlock = styled.div`
   margin: auto;
 `;
 
+const ErrorText = styled.p`
+  color: red;
+  font-size: 18px;
+`;
+
 const PreviewPDF = () => {
   const [pdfBlob, setPdfBlob] = useState(null);
   const [questions, setQuestions] = useLocalStorage('questions', []);
@@ -105,10 +110,8 @@ const PreviewPDF = () => {
           console.error('Answer is not a string:', answer);
         }
       });
+      y += 10; 
     });
-
-    // Stop download a file
-    //doc.save('test.pdf');
 
     // Generate the PDF as a Blob instead of saving it
     const blob = new Blob([doc.output('arraybuffer')], { type: 'application/pdf' });
@@ -132,7 +135,7 @@ const PreviewPDF = () => {
         <iframe src={pdfBlob} type="application/pdf" width="100%" height="600px" />
       ) : (
         <>
-        {isPreviewDisabled() && <p style={{ color: 'red' }}>Please fill out all questions to enable PDF preview</p>}
+        {isPreviewDisabled() && <ErrorText>Please fill out all questions and answers.</ErrorText>}
         <StyledButton onClick={generatePDF} disabled={isPreviewDisabled()}>
           <span style={{ marginRight: '8px' }}>
             <FontAwesomeIcon icon={faEye} />
