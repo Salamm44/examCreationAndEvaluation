@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import QuestionForm from './components/QuestionForm';
+import useLocalStorage from '../hooks/useLocalStorage';
 
 const StyledDiv = styled.div`
   display: flex;
@@ -18,6 +19,11 @@ const StyledDiv = styled.div`
   `;
 
 const StyledP = styled.p`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
   font-size: 20px;
   color: #333;
   margin-top: 0px;
@@ -34,9 +40,38 @@ const StyledP = styled.p`
   }
 `;
 
+const AddButton = styled.button`
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #8C0303;
+  color: white;
+  font-size: 20px;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  margin-right: 10px;
+
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+`;
+
 const TestQuestions = () => {
-  const [numQuestions, setNumQuestions] = useState(0); // State for number of questions
-  const [numAnswers, setNumAnswers] = useState(0); // State for number of answers
+  const [form, setForm] = useState(JSON.parse(localStorage.getItem('form')) || { numQuestions: 0 });
+  const [numQuestions, setNumQuestions] = useState(form.numQuestions); // State for number of questions
+  const [numAnswers, setNumAnswers] = useState(form.numAnswers); // State for number of answers
+
+  useEffect(() => {
+    setNumQuestions(form.numQuestions)
+  }, [form]);
 
   // Use useEffect to retrieve numQuestions and numAnswers from localStorage when the component mounts
   useEffect(() => {
@@ -52,13 +87,29 @@ const TestQuestions = () => {
     }
   }, []);
 
+  const increaseQuestionCount = () => {
+    setNumQuestions(numQuestions + 1);
+  };
+
   return (
     <StyledDiv>
       <StyledRowDiv>
-        <StyledP>Questions: {numQuestions}</StyledP>
-        <StyledP>Answers: {numAnswers}</StyledP>
+        <StyledP>
+          Questions: {numQuestions}
+          <ButtonContainer>
+            <AddButton onClick={increaseQuestionCount} disabled="true">+</AddButton>
+          </ButtonContainer>
+        </StyledP>
+        <StyledP>
+          Answers: {numAnswers}
+          <ButtonContainer>
+            <AddButton onClick={increaseQuestionCount} disabled="true" >+</AddButton>
+            <AddButton onClick={increaseQuestionCount} disabled="true" >-</AddButton>
+          </ButtonContainer>
+        </StyledP>
+
       </StyledRowDiv> 
-        <QuestionForm numQuestions={numQuestions} numAnswers={numAnswers} />
+        <QuestionForm formProp={form} updateForm={setForm} numQuestions={numQuestions} numAnswers={numAnswers} />
     </StyledDiv>
   );
 };

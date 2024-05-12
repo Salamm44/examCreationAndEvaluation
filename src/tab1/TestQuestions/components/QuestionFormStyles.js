@@ -46,3 +46,24 @@ export const ErrorText = styled.p`
   color: red;
   font-size: 18px;
 `;
+
+export const RemoveButton = styled.button`
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background-color: #8C0303;
+  color: white;
+  font-size: 14px;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  margin: 0 10px;
+`;
+
+export const QuestionRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;

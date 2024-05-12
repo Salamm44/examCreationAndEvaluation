@@ -16,15 +16,19 @@ const Question = ({
   handleQuestionChange,
   answers,
   handleAnswerChange,
+  handleRemoveQuestion,
 }) => (
   <Styled.QuestionBlock key={`question-block-${qIndex}`}>
     <Styled.H3>Question {qIndex + 1}:</Styled.H3>
+    <Styled.QuestionRow>
     <Styled.Input
       type="text"
       value={question.text}
       onChange={(event) => handleQuestionChange(qIndex, event.target.value)}
       placeholder="Enter question"
     />
+    <Styled.RemoveButton onClick={() => handleRemoveQuestion(qIndex)}>X</Styled.RemoveButton>
+    </Styled.QuestionRow>
     {answers[qIndex] &&
       // eslint-disable-next-line react/prop-types
       answers[qIndex].map((answer, aIndex) => (
@@ -39,12 +43,19 @@ const Question = ({
   </Styled.QuestionBlock>
 );
 
-const QuestionForm = ({ numQuestions = 0, numAnswers = 0 }) => {
+const QuestionForm = ({ numQuestions = 0, numAnswers = 0, formProp, updateForm}) => {
   const [questions, setQuestions] = useLocalStorage('questions', []);
   const [answers, setAnswers] = useLocalStorage('answers', []);
   const [areQuestionsEntered, setAreQuestionsEntered] = useState(false);
   const [areAnswersEntered, setAreAnswersEntered] = useState(false);
   const [isCheckboxChecked, setIsCheckboxChecked] = useState(false);
+
+  const [form, setForm] = useLocalStorage('form', { numQuestions: 0});
+
+  useEffect(() => {
+    setForm(formProp);
+    console.log({formProp});
+  }, [formProp, setForm]);
 
 
   useEffect(() => {
@@ -127,6 +138,16 @@ const QuestionForm = ({ numQuestions = 0, numAnswers = 0 }) => {
       });
   };
 
+  const handleRemoveQuestion = (index) => {
+    const newQuestions = [...questions];
+    newQuestions.splice(index, 1);
+    setQuestions(newQuestions);
+
+    // Decrease numQuestions in form object in localStorage by 1
+    const newForm = { ...form, numQuestions: form.numQuestions - 1 };
+    updateForm(newForm);
+    setForm(newForm);
+  };
   const [showLoading, setShowLoading] = useState(false);
 
   const isDisabled = () =>
@@ -149,6 +170,7 @@ const QuestionForm = ({ numQuestions = 0, numAnswers = 0 }) => {
               handleQuestionChange={handleQuestionChange}
               answers={answers}
               handleAnswerChange={handleAnswerChange}
+              handleRemoveQuestion={handleRemoveQuestion} 
             />
 
             <Validation
@@ -177,6 +199,8 @@ const QuestionForm = ({ numQuestions = 0, numAnswers = 0 }) => {
 QuestionForm.propTypes = {
   numQuestions: PropTypes.number.isRequired,
   numAnswers: PropTypes.number.isRequired,
+  formProp: PropTypes.object,
+  updateForm: PropTypes.func,
 };
 
 Question.propTypes = {
@@ -191,6 +215,7 @@ Question.propTypes = {
     }),
   ).isRequired,
   handleAnswerChange: PropTypes.func.isRequired,
+  handleRemoveQuestion: PropTypes.func.isRequired,
 };
 
 export default QuestionForm;

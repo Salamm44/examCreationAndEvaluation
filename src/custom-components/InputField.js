@@ -14,9 +14,9 @@ const InputField = ({ type, name, placeholder, initialValue, propValue, error, h
 
     const handleInputChangeLocal = (e) => {
         const newValue = e.target.value;
-        const newError = (newValue && type !== 'number' && /^\d+$/.test(newValue)) || 
-                         (newValue && type === 'number' && (!/^\d{1,2}$/.test(newValue))) || 
-                         (error && newValue && !/^\d+$/.test(newValue));
+        const newError = (isNotNullOrUndefined(newValue) && type !== 'number' && /^\d+$/.test(newValue)) || 
+                         (isNotNullOrUndefined(newValue) && type === 'number' && (!/^\d{1,2}$/.test(newValue))) || 
+                         (error && isNotNullOrUndefined(newValue) && !/^\d+$/.test(newValue));
         setValue(newValue);
         handleInputChange(e, newError);
     }
@@ -40,13 +40,17 @@ const InputField = ({ type, name, placeholder, initialValue, propValue, error, h
                     disabled={disabled}
                 />
                 {type === 'date' && <FontAwesomeIcon icon={faRedo} onClick={handleResetDate} />}
-                {value && type !== 'number' && /^\d+$/.test(value) && <p className="error-message">{placeholder} should not be a number</p>}
-                {value && type === 'number' && (!/^\d{1,2}$/.test(value)) && <p className="error-message">{placeholder} should be a one or two-digit number</p>}
-                {error && value && !/^\d+$/.test(value) && <p className="warning-message">{placeholder} should be at least 3 letters</p>}
+                {isNotNullOrUndefined(value) && type !== 'number' && /^\d+$/.test(value) && <p className="error-message">{placeholder} should not be a number</p>}
+                {isNotNullOrUndefined(value) && type === 'number' && (!/^\d{1,2}$/.test(value)) && <p className="error-message">{placeholder} should be a one or two-digit number</p>}
+                {error && isNotNullOrUndefined(value) && !/^\d+$/.test(value) && <p className="warning-message">{placeholder} should be at least 3 letters</p>}
                 {disabled && hint && <p className="warning-message">{hint}</p>}
             </div>
         </div>
     );
+}
+
+function isNotNullOrUndefined(value) {
+    return value !== null && value !== undefined;
 }
 
 InputField.propTypes = {
