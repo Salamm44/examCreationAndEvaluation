@@ -1,6 +1,5 @@
-from pdf2image import convert_from_path
 import cv2
-import numpy as np
+from pdf2image import convert_from_path
 
 # Convert PDF to image
 pages = convert_from_path('test_sample.pdf', 300)
@@ -19,43 +18,35 @@ gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 blurred = cv2.GaussianBlur(gray, (5, 5), 0)
 
 # Apply adaptive thresholding
-thresh = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
-                               cv2.THRESH_BINARY_INV, 11, 2)
+thresh = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
 
-# Find contours
 contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-# Filter and sort contours
 filtered_contours = [c for c in contours if cv2.contourArea(c) > 1000]
 filtered_contours = sorted(filtered_contours, key=lambda c: cv2.boundingRect(c)[1])
 
-# Draw contours on the image
-contour_image = image.copy()
-cv2.drawContours(contour_image, filtered_contours, -1, (0, 255, 0), 2)
-
-# Save the contour image for debugging
-cv2.imwrite('contours.jpg', contour_image)
-
 def is_bubble_filled(bubble_roi):
-    # Count the number of non-zero pixels within the ROI
-    return cv2.countNonZero(bubble_roi) > 500
+    return cv2.countNonZero(bubble_roi) > 200
 
-# Iterate through each detected contour
+checkbox_field_number = 1
+
 for contour in filtered_contours:
     x, y, w, h = cv2.boundingRect(contour)
+    cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
+    
     roi = thresh[y:y+h, x:x+w]
-    
-    # Assuming three options per question, divide the region into three parts
     height, width = roi.shape
-    bubble_height = height // 3
+    checkbox_height = height // 3
     
-    filled_bubbles = []
     for i in range(3):
-        bubble_roi = roi[i*bubble_height:(i+1)*bubble_height, :]
-        if is_bubble_filled(bubble_roi):
-            filled_bubbles.append(i + 1)  # Assuming options are numbered 1, 2, 3
+        checkbox_roi = roi[i*checkbox_height:(i+1)*checkbox_height, :]
+        cv2.rectangle(image, (x, y + i*checkbox_height), (x + w, y + (i+1)*checkbox_height), (255, 0, 0), 2)
+        
+        if is_bubble_filled(checkbox_roi):
+            print(f"Checkbox Field {checkbox_field_number}: Filled")
+            break
+    else:
+        print(f"Checkbox Field {checkbox_field_number}: Not Filled")
     
-    print(f"Question at ({x}, {y}): Filled Bubbles: {filled_bubbles}")
+    checkbox_field_number += 1
 
-# Save the final processed image for reference
-cv2.imwrite('final_result.jpg', image)
+cv2.imwrite('debug_final_result.jpg', image)
