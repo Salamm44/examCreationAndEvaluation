@@ -3,38 +3,42 @@ from tkinter import filedialog, messagebox
 import shutil
 import os
 import time
-
 from datetime import datetime
+from pdf_utils import convert_pdf_to_image 
 
 # Define the path to your assets directory
 assets_dir = "./assets"
+processed_images_dir = "./assets/processed_images"
+
+def ensure_dir(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+def upload_and_convert_pdf(file_path, prefix):
+    ensure_dir(processed_images_dir)  # Ensure the processed_images directory exists
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    new_filename = f"{prefix}_{timestamp}{os.path.splitext(file_path)[1]}"
+    destination = os.path.join(assets_dir, new_filename)
+    shutil.copy(file_path, destination)
+    if file_path.lower().endswith('.pdf'):
+        # Convert and save the PDF as an image
+        output_image_path = os.path.join(processed_images_dir, f"{os.path.splitext(new_filename)[0]}.jpg")
+        convert_pdf_to_image(destination, output_path=output_image_path)
+        messagebox.showinfo("File Selected", f"{prefix} uploaded and converted: {output_image_path}")
+    else:
+        messagebox.showinfo("File Selected", f"{prefix} uploaded: {destination}")
 
 def upload_corrected_sheet():
     file_path = filedialog.askopenfilename()
     if file_path:
-        # Generate a timestamp
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        # Rename the file with "Corrected_sheet" prefix and timestamp
-        new_filename = f"Corrected_sheet_{timestamp}{os.path.splitext(file_path)[1]}"
-        destination = os.path.join(assets_dir, new_filename)
-        shutil.copy(file_path, destination)
-        messagebox.showinfo("File Selected", f"Corrected Sheet uploaded to assets: {new_filename}")
+        upload_and_convert_pdf(file_path, "Corrected_sheet")
 
 def upload_student_sheets():
     file_paths = filedialog.askopenfilenames()
     if file_paths:
-        uploaded_files = []
         for file_path in file_paths:
-            # Generate a timestamp
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            # Rename the file with "Student_sheet" prefix and timestamp
-            new_filename = f"Student_sheet_{timestamp}{os.path.splitext(file_path)[1]}"
-            destination = os.path.join(assets_dir, new_filename)
-            shutil.copy(file_path, destination)
-            uploaded_files.append(new_filename)
-            # Ensure each file gets a unique timestamp by adding a slight delay
-            time.sleep(1)
-        messagebox.showinfo("Files Selected", f"Student Sheets uploaded to assets: {', '.join(uploaded_files)}")
+            upload_and_convert_pdf(file_path, "Student_sheet")
+            time.sleep(1)  # Ensure each file gets a unique timestamp
 
 def process_images():
 	# Placeholder for your image processing logic
