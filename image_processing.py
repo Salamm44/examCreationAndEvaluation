@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import os
 
 def preprocess_image(image_path):
     # Load image
@@ -17,12 +16,11 @@ def preprocess_image(image_path):
                                    cv2.THRESH_BINARY_INV, 11, 2)
 
     # Perform morphological operations to improve contour detection
-    kernel = np.ones((3,3),np.uint8)
+    kernel = np.ones((3, 3), np.uint8)
     binary = cv2.dilate(binary, kernel, iterations=1)
     binary = cv2.erode(binary, kernel, iterations=1)
 
     return image, binary
-
 
 def detect_quadrats(image, binary):
     contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -43,16 +41,11 @@ def detect_quadrats(image, binary):
                 filled_quadrats.append(contour)
 
     for contour in empty_quadrats:
-        cv2.drawContours(image, [contour], -1, color=(0, 255, 0), thickness=2)
+        cv2.drawContours(image, [contour], -1, color=(0, 0, 255), thickness=2)
 
     for contour in filled_quadrats:
-        cv2.drawContours(image, [contour], -1, color=(0, 0, 255), thickness=2)
+        cv2.drawContours(image, [contour], -1, color=(0, 255, 0), thickness=2)
 
     print(f"Detected {len(filled_quadrats)} filled quadrats and {len(empty_quadrats)} empty quadrats")
 
-    cv2.imshow('Result', image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
-
-    return filled_quadrats, empty_quadrats
+    return image

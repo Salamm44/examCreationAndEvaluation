@@ -23,7 +23,6 @@ def main(image_path):
             print("Error: No result image to display or result image is not a valid numpy array.")
     else:
         print("Error: Image processing failed.")
-        
 
 if __name__ == "__main__":
     directory = './assets/processed_images'
