@@ -1,6 +1,7 @@
 import cv2
 import os
-from image_processing import detect_quadrat, preprocess_image
+from image_processing import detect_quadrats, preprocess_image
+import numpy as np
 
 def get_image_paths(directory):
     file_names = os.listdir(directory)
@@ -9,21 +10,20 @@ def get_image_paths(directory):
     return image_paths
 
 def main(image_path):
-    gray_image, binary_image = preprocess_image(image_path)
-    if gray_image is not None and binary_image is not None:
-        filled_quadrats, empty_quadrats = detect_quadrat(gray_image, binary_image)
-        original_image = cv2.imread(image_path)
-
-        if not filled_quadrats and not empty_quadrats:
-            print(f"No quadrats detected in image: {image_path}")
-        else:
-            print(f"Detected {len(filled_quadrats)} filled quadrats and {len(empty_quadrats)} empty quadrats")
-            cv2.drawContours(original_image, empty_quadrats, -1, (0, 0, 255), 2)  # Red for empty quadrats
-            cv2.drawContours(original_image, filled_quadrats, -1, (0, 255, 0), 2)  # Green for filled quadrats
-            cv2.namedWindow('Original Image with Detected Quadrats', cv2.WINDOW_NORMAL)
-            cv2.imshow('Original Image with Detected Quadrats', original_image)
+    image, binary = preprocess_image(image_path)
+    if image is not None and binary is not None:
+        result_image = detect_quadrats(image, binary)
+        
+        if result_image is not None and isinstance(result_image, np.ndarray):
+            print("Result image shape:", result_image.shape)
+            cv2.imshow('Result', result_image)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
+        else:
+            print("Error: No result image to display or result image is not a valid numpy array.")
+    else:
+        print("Error: Image processing failed.")
+        
 
 if __name__ == "__main__":
     directory = './assets/processed_images'

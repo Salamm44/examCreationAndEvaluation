@@ -3,63 +3,56 @@ import numpy as np
 import os
 
 def preprocess_image(image_path):
+    # Load image
     image = cv2.imread(image_path)
     if image is None:
-        print(f"Error loading image: {image_path}")
+        print("Error: Unable to load image.")
         return None, None
 
-    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    blurred_image = cv2.GaussianBlur(gray_image, (5, 5), 0)
-    binary_image = cv2.adaptiveThreshold(blurred_image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
-    return gray_image, binary_image
+    # Convert to grayscale
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # Convert to binary with adaptive thresholding
+    binary = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                                   cv2.THRESH_BINARY_INV, 11, 2)
+
+    # Perform morphological operations to improve contour detection
+    kernel = np.ones((3,3),np.uint8)
+    binary = cv2.dilate(binary, kernel, iterations=1)
+    binary = cv2.erode(binary, kernel, iterations=1)
+
+    return image, binary
 
 
-def detect_quadrat(gray_image, binary_image):
-    contours, _ = cv2.findContours(binary_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    
-    filled_quadrats = []
+def detect_quadrats(image, binary):
+    contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
     empty_quadrats = []
-
-    min_area = 400  # Adjust this value based on your expected quadrat size
+    filled_quadrats = []
 
     for contour in contours:
-        approx = cv2.approxPolyDP(contour, 0.02 * cv2.arcLength(contour, True), True)
-        if len(approx) == 4:
-            x, y, w, h = cv2.boundingRect(approx)
-            if 10 < w < 200 and 10 < h < 200:  # Adjusted size range
-                contour_area = cv2.contourArea(contour)
-                if contour_area > min_area:
-                    mask = np.zeros_like(binary_image)
-                    cv2.drawContours(mask, [approx], -1, 255, -1)
+        area = cv2.contourArea(contour)
+        if 500 < area < 800:  # Assuming quadrat area falls within this range
+            mask = np.zeros_like(binary)
+            cv2.drawContours(mask, [contour], -1, color=255, thickness=-1)
+            mean_val = cv2.mean(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY), mask=mask)[0]
+            print(f"Contour area: {area}, Mean value: {mean_val}")
+            if mean_val > 180:  # Adjusted threshold for distinguishing between empty and filled quadrats
+                empty_quadrats.append(contour)
+            else:
+                filled_quadrats.append(contour)
 
-                    # Calculate mean value of the pixels within the quadrat
-                    mean_val = cv2.mean(gray_image, mask=mask)[0]
+    for contour in empty_quadrats:
+        cv2.drawContours(image, [contour], -1, color=(0, 255, 0), thickness=2)
 
-                    # Debug output
-                    print(f"Contour area: {contour_area}, Mean value: {mean_val}")
+    for contour in filled_quadrats:
+        cv2.drawContours(image, [contour], -1, color=(0, 0, 255), thickness=2)
 
-                    # Adjusted threshold value
-                    if mean_val > 150:  # Higher mean value indicates an empty quadrat
-                        empty_quadrats.append(approx)
-                        print("Added to empty_quadrats")
-                    else:
-                        filled_quadrats.append(approx)
-                        print("Added to filled_quadrats")
-    
-    # Create a copy of the original image to draw on
-    output_image = cv2.cvtColor(binary_image, cv2.COLOR_GRAY2BGR)
+    print(f"Detected {len(filled_quadrats)} filled quadrats and {len(empty_quadrats)} empty quadrats")
 
-    # Draw filled quadrats in red
-    for quadrat in filled_quadrats:
-        cv2.drawContours(output_image, [quadrat], -1, (0, 0, 255), 2)  # Red color in BGR
-
-    # Draw empty quadrats in green
-    for quadrat in empty_quadrats:
-        cv2.drawContours(output_image, [quadrat], -1, (0, 255, 0), 2)  # Green color in BGR
-
-    # Display the final image
-    cv2.imshow('Detected Quadrats', output_image)
+    cv2.imshow('Result', image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
 
     return filled_quadrats, empty_quadrats
