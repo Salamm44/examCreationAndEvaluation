@@ -91,6 +91,7 @@ def corrected_images():
     corrected_answers = extract_correct_answers_with_boxes()
     print(corrected_answers)
 
+
 def extract_correct_answers_with_boxes():
     """
     Extracts the correct answers from the corrected sheet image in the specified directory and saves them in a list.
@@ -119,9 +120,6 @@ def extract_correct_answers_with_boxes():
     if not image_paths:
         raise FileNotFoundError(f"No image with prefix '{prefix}' found in directory '{directory}'")
     
-    # Initialize the list to store the line numbers of filled quadrats
-    correct_answers = []
-    
     # Process only the first corrected sheet found
     image_path = image_paths[0]
     
@@ -138,15 +136,28 @@ def extract_correct_answers_with_boxes():
         # Combine filled and empty quadrats
         all_quadrats = filled_quadrats + empty_quadrats
         
-        # Map all quadrats to line numbers and values
-        all_quadrats_with_numbers_and_values = map_filled_quadrats_to_lines(all_quadrats, filled_quadrats, lines_per_question=3)
+        # Extract bounding rectangles for filled quadrats
+        filled_quadrats_rects = [cv2.boundingRect(fq) for fq in filled_quadrats]
         
-        # Extract the values to a separate array
-        quadrat_values = [value for _, value in all_quadrats_with_numbers_and_values]
+        # Create a list to store quadrat contours with their values
+        quadrats_with_values = []
         
         # Draw contours and values around all quadrats
-        for quadrat, (line_number, value) in zip(all_quadrats, all_quadrats_with_numbers_and_values):
-            color = (0, 255, 0) if value == 1 else (0, 0, 255)
+        for quadrat in all_quadrats:
+            quadrat_rect = cv2.boundingRect(quadrat)
+            is_filled = quadrat_rect in filled_quadrats_rects
+            value = 1 if is_filled else 0
+            quadrats_with_values.append((quadrat, value))
+        
+        # Sort quadrats by their bounding rectangle to ensure the order is correct
+        quadrats_with_values.sort(key=lambda item: (cv2.boundingRect(item[0])[1], cv2.boundingRect(item[0])[0]))
+        
+        # Extract the values to a separate array in the same order
+        quadrat_values = [value for _, value in quadrats_with_values]
+        
+        # Draw contours and values on the processed image
+        for quadrat, value in quadrats_with_values:
+            color = (0, 255, 0) if value == 1 else (0, 0, 255)  # Green for filled, Red for empty
             cv2.drawContours(processed_image, [quadrat], -1, color, 2)
             x, y, w, h = cv2.boundingRect(quadrat)
             cv2.putText(processed_image, str(value), (x - 30, y + h // 2), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
@@ -158,8 +169,6 @@ def extract_correct_answers_with_boxes():
     
     print(quadrat_values)
     return quadrat_values
-
-
 
 def map_filled_quadrats_to_lines(quadrats, filled_quadrats, lines_per_question):
     """
@@ -176,29 +185,28 @@ def map_filled_quadrats_to_lines(quadrats, filled_quadrats, lines_per_question):
     # Sort the quadrats by their y-coordinate and x-coordinate to ensure correct order
     quadrats = sorted(quadrats, key=lambda c: (cv2.boundingRect(c)[1], cv2.boundingRect(c)[0]))
     
+    # Extract bounding rectangles for filled quadrats
+    filled_quadrats_rects = [cv2.boundingRect(fq) for fq in filled_quadrats]
+    
     # Debugging: Print the sorted quadrats' coordinates
-    print("Sorted quadrats by y-coordinate and x-coordinate:")
+    print("Sorted quadrats by coordinates:")
     for quadrat in quadrats:
         print(cv2.boundingRect(quadrat))
     
-    quadrats_with_numbers_and_values = []
+    quadrats_with_numbers = []
     current_line = 1
     
     for i, quadrat in enumerate(quadrats):
-        # Determine if the quadrat is filled
+        # Calculate the line number within the question (1-based index)
         quadrat_rect = cv2.boundingRect(quadrat)
-        is_filled = any(cv2.boundingRect(fq) == quadrat_rect for fq in filled_quadrats)
-        quadrat_value = 1 if is_filled else 0
-        
-        # Append the current line and quadrat value
-        quadrats_with_numbers_and_values.append((current_line, quadrat_value))
-        
-        # Increment the line number, reset if it exceeds lines_per_question
+        is_filled = quadrat_rect in filled_quadrats_rects
+        quadrats_with_numbers.append((current_line, 1 if is_filled else 0))
         current_line += 1
         if current_line > lines_per_question:
             current_line = 1
     
-    return quadrats_with_numbers_and_values
+    return quadrats_with_numbers
+
 
 def init_gui():
     global root, loading_label
