@@ -32,6 +32,8 @@ const TestDetails = () => {
       date: localStorage.getItem('date') || '',
       numQuestions: localStorage.getItem('numQuestions') || '',
       numAnswers: localStorage.getItem('numAnswers') || '',
+      studentName: localStorage.getItem('studentName') || '',
+      studentId: localStorage.getItem('studentId') || '',
     };
 
     const savedForm = localStorage.getItem('form');
@@ -47,6 +49,8 @@ const TestDetails = () => {
     numQuestions: false,
     numAnswers: false,
     date: false,
+    studentName: false,
+    studentId: false,
   });
 
   // initialize isSaved state with data from local storage
@@ -110,6 +114,10 @@ const isFormValid = () => {
     // Update localStorage with the form data
     localStorage.setItem('form', JSON.stringify(form));
 
+    // Save studentName and studentId separately
+    localStorage.setItem('studentName', form.studentName);
+    localStorage.setItem('studentId', form.studentId);
+
     // save the isSaved state
     localStorage.setItem('isSaved', true);
     setIsSaved(true);
@@ -129,6 +137,10 @@ const isFormValid = () => {
     });
   };
 
+  useEffect(() => {
+    localStorage.setItem('form', JSON.stringify(form));
+  }, [form]);
+
   // Add this function to handle the reset action
   const resetForm = () => {
     // Define the empty form
@@ -139,6 +151,8 @@ const isFormValid = () => {
       date: '',
       numQuestions: '',
       numAnswers: '',
+      studentName: '',
+      studentId: '',
     };
 
     // Reset the form state

@@ -15,6 +15,7 @@ const StyledDiv = styled.div`
   align-items: center;
   padding: 20px;
   font-family: 'Helvetica Neue', Arial, sans-serif;
+  width: 100%;
 `;
 
 const StyledButton = styled.button`
@@ -44,9 +45,10 @@ const StyledBlock = styled.div`
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.2);
-  width: 50%;
+  width: 80%;
   height: 480px;
-  margin: auto;
+  margin: 20px 0;
+  max-width: 800px;
 `;
 
 const ErrorText = styled.p`
@@ -54,95 +56,144 @@ const ErrorText = styled.p`
   font-size: 18px;
 `;
 
+const IframeContainer = styled.div`
+  width: 100%;
+  height: 600px;
+  overflow: hidden;
+  position: relative;
+`;
+
+const Iframe = styled.iframe`
+  width: 100%;
+  height: 100%;
+  border: none;
+`;
+
+const NavigationContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+`;
+
 const PreviewPDF = () => {
   const [pdfBlob, setPdfBlob] = useState(null);
   const [questions, setQuestions] = useLocalStorage('questions', []);
   const [answers, serAnswers] = useLocalStorage('answers', []);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   const isPreviewDisabled = () =>  questions.length === 0 || answers.length === 0;
 
-  const generatePDF = async () => {
-
+  const addTemplateDetails = (doc, y) => {
     const testDetails = JSON.parse(localStorage.getItem('form'));
+    console.log(testDetails);
 
-    const doc = new jsPDF();
-
-    // Set the text color to light gray and the size to 10
     doc.setTextColor(169, 169, 169); // RGB value for light gray
     doc.setFontSize(12);
 
-    // Add the form values to the PDF
-    let y = 10; // Initialize y
-    const keys = Object.keys(testDetails).slice(1, -2); // Get all keys except the last two
+    const keys = Object.keys(testDetails).filter(key => key !== 'numAnswers' && key !== 'numQuestions' && key !== 'studentName' && key !== 'studentId');
     keys.forEach((key) => {
       doc.text(`${key}: ${testDetails[key]}`, 5, y);
+      console.log(`Left side: ${key}: ${testDetails[key]} at (5, ${y})`);
       y += 5;
     });
 
-    // Reset the text color to black and the size to 12
+    // Add studentName and studentId on the right side, balanced with the first line on the left
+    const rightSideKeys = ['studentName', 'studentId'];
+    let rightSideY = 10; // Initialize right side y-coordinate to match the top
+    rightSideKeys.forEach((key) => {
+      doc.text(`${key}: ${testDetails[key] || ''}`, 150, rightSideY); // Adjust x coordinate to 150 for right side
+      console.log(`Right side: ${key}: ${testDetails[key] || 'empty'} at (150, ${rightSideY})`);
+      rightSideY += 5;
+    });
+
     doc.setTextColor(0, 0, 0); // RGB value for black
     doc.setFontSize(12);
 
-    // Add a space before the questions and answers
-    y += 10;
+    return y + 10; // Add a space before the questions and answers
+  };
+
+  const generatePDF = async () => {
+    const doc = new jsPDF();
+    let y = 10; // Initialize y
+
+    y = addTemplateDetails(doc, y);
+
+    let questionCount = 0;
 
     questions.forEach((question, index) => {
-      // Ensure the question is a string
       const questionText = question.text ? question.text : question;
       if (typeof questionText !== 'string') {
         console.error('Question is not a string:', question);
         return;
       }
-    
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const textWidth = doc.getStringUnitWidth(questionText) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+
+      if (questionCount === 7) {
+        doc.addPage();
+        y = 10;
+        y = addTemplateDetails(doc, y);
+        questionCount = 0;
+      }
+
       const textX = 10;
       doc.text(questionText, textX, y);
       y += 10; // Increase the y-coordinate by 10 for each question
-    
+      questionCount++;
+
       answers[index].forEach((answer) => {
-        // Check if answer is an object and has a text property
         if (typeof answer === 'object' && answer.text) {
-          // Draw an empty checkbox before the answer
-          doc.rect(15, y - 3, 3, 3);
+          doc.rect(15, y - 3, 3, 3); // Draw an empty checkbox before the answer
           doc.text(answer.text, 20, y); // Indent the answer
           y += 5; // Increase the y-coordinate by 5 for each answer
         } else {
           console.error('Answer is not a string:', answer);
         }
       });
-      y += 10; 
+      y += 10;
     });
 
-    // Generate the PDF as a Blob instead of saving it
-    const blob = new Blob([doc.output('arraybuffer')], { type: 'application/pdf' });
+    const pdfBlob = doc.output('blob');
+    setPdfBlob(URL.createObjectURL(pdfBlob));
+    setTotalPages(doc.internal.getNumberOfPages());
+  };
 
-    // Create a URL from the Blob
-    const url = URL.createObjectURL(blob);
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
 
-    // Add #toolbar=0 to the URL to hide the toolbar
-    const urlWithNoToolbar = url + '#toolbar=1';
-
-    // Store the Blob in the component's state
-    setPdfBlob(urlWithNoToolbar);
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
   };
 
   return (
     <StyledDiv>
       <StyledBlock>
-      {pdfBlob ? (
-        // If the PDF has been generated, display it
-        <iframe src={pdfBlob} type="application/pdf" width="100%" height="600px" />
-      ) : (
-        <>
-        {isPreviewDisabled() && <ErrorText>Please fill out all questions and answers.</ErrorText>}
-        <StyledButton onClick={generatePDF} disabled={isPreviewDisabled()}>
-          <span style={{ marginRight: '8px' }}>
-            <FontAwesomeIcon icon={faEye} />
-          </span>
-          Preview PDF
-        </StyledButton>
-        </>
-      )}
+        {pdfBlob ? (
+          // If the PDF has been generated, display it
+          <IframeContainer>
+            <Iframe src={`${pdfBlob}#page=${currentPage}`} type="application/pdf" title="PDF Preview" />
+            <NavigationContainer>
+              <button onClick={handlePreviousPage} disabled={currentPage === 1}>Previous</button>
+              <span>Page {currentPage} of {totalPages}</span>
+              <button onClick={handleNextPage} disabled={currentPage === totalPages}>Next</button>
+            </NavigationContainer>
+          </IframeContainer>
+        ) : (
+          <>
+            {isPreviewDisabled() && <ErrorText>Please fill out all questions and answers.</ErrorText>}
+            <StyledButton onClick={generatePDF} disabled={isPreviewDisabled()}>
+              <span style={{ marginRight: '8px' }}>
+                <FontAwesomeIcon icon={faEye} />
+              </span>
+              Preview PDF
+            </StyledButton>
+          </>
+        )}
       </StyledBlock>
     </StyledDiv>
   );
