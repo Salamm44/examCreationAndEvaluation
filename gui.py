@@ -11,6 +11,13 @@ import numpy as np
 from image_processing import detect_quadrats, preprocess_image
 from PIL import Image
 import easyocr
+from image_processing import detect_quadrats, preprocess_image
+from quadrat_processor import QuadratProcessor
+import uuid
+from answers_manager import set_correct_answers, calculate_score
+from student import Student, students  # Import the Student class from the appropriate module
+import string
+import random
 
 # Define the path to your assets directory
 assets_dir = "./assets"
@@ -24,34 +31,106 @@ def ensure_dir(directory):
 ensure_dir(assets_dir)
 ensure_dir(processed_images_dir)
 
-def upload_and_convert_pdf(file_path, prefix):
-    ensure_dir(processed_images_dir)  # Ensure the processed_images directory exists
+
+def upload_and_convert_pdf(file_path, prefix, student_id = ""):
+    """
+    Uploads a file, converts it if it's a PDF, and saves the output with a timestamp and student ID in the filename.
+
+    Args:
+        file_path (str): The path to the file to be uploaded.
+        prefix (str): A prefix for the new filename to identify the type of file.
+        student_id (str): A unique identifier for the student, included in the new filename.
+    """
+    # Ensure the processed_images directory exists
+    ensure_dir(processed_images_dir)
+
+    # Generate a timestamp and create the new filename including the student ID
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    new_filename = f"{prefix}_{timestamp}{os.path.splitext(file_path)[1]}"
+    new_filename = f"{prefix}_{student_id}_{timestamp}{os.path.splitext(file_path)[1]}"
     destination = os.path.join(assets_dir, new_filename)
+
+    # Copy the file to the destination directory
     shutil.copy(file_path, destination)
+
+    # Check if the uploaded file is a PDF
     if file_path.lower().endswith('.pdf'):
-        # Convert and save the PDF as an image
+        # Convert the PDF to an image and save it with the same base name as the new filename
         output_image_path = os.path.join(processed_images_dir, f"{os.path.splitext(new_filename)[0]}.jpg")
         convert_pdf_to_image(destination, output_path=output_image_path)
+        
+        # Notify the user that the PDF was uploaded and converted
         messagebox.showinfo("File Selected", f"{prefix} uploaded and converted: {output_image_path}")
     else:
+        # Notify the user that a non-PDF file was uploaded
         messagebox.showinfo("File Selected", f"{prefix} uploaded: {destination}")
 
 
 def upload_corrected_sheet():
-    global corrected_sheet_uploaded
     file_path = filedialog.askopenfilename()
     if file_path:
-        upload_and_convert_pdf(file_path, "corrected_sheet")
-        corrected_sheet_uploaded = True  # Set the flag to True
+        try:
+            # Step 1: Upload and convert PDF
+            upload_and_convert_pdf(file_path, "corrected_sheet")
+            
+            # Step 2: Process the image after uploading
+            corrected_answers = corrected_images()  # Call the processing method immediately
+            set_correct_answers(corrected_answers)
+            messagebox.showinfo("Success", "Corrected sheet processed successfully.")
+            
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred while uploading the corrected sheet: {e}")
 
 def upload_student_sheets():
-    file_paths = filedialog.askopenfilenames()
-    if file_paths:
-        for file_path in file_paths:
-            upload_and_convert_pdf(file_path, "student_sheet")
-            time.sleep(1)  # Ensure each file gets a unique timestamp
+    file_path = filedialog.askopenfilename()
+    if file_path:
+        try:
+            # Generate a random student ID
+            student_id = generate_student_id()
+
+            # Upload and convert PDF
+            upload_and_convert_pdf(file_path, "student_sheet", student_id)
+            
+            # Create a processor instance with the student sheet prefix and student ID
+            processor = QuadratProcessor(prefix='student_sheet', student_id=student_id)
+            
+            # Process the student's sheet
+            student_answers = processor.extract_correct_answers_with_boxes(sheet_type='student')
+            score = calculate_score(student_answers)
+            
+            messagebox.showinfo("Success", f"Student sheet processed. Score: {score} | Student ID: {student_id}")
+
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred while uploading the student sheet: {e}")
+
+def corrected_images():
+    print("Corrected Images button clicked")
+    directory = './assets/processed_images'
+    prefix = 'corrected_sheet'
+    print(f"Looking for images in directory: {directory} with prefix: {prefix}")
+    
+    # List all files in the directory
+    files = os.listdir(directory)
+    print(f"Files in directory: {files}")
+    
+    # Filter files with the given prefix (case-insensitive)
+    image_paths = [os.path.join(directory, f) for f in files if f.lower().startswith(prefix.lower())]
+    print(f"Filtered image paths: {image_paths}")
+    
+    if not image_paths:
+        raise FileNotFoundError(f"No image with prefix '{prefix}' found in directory '{directory}'")
+    
+    # Process the images and extract correct answers
+    processor = QuadratProcessor(directory=directory, prefix=prefix)
+    correct_answers = processor.extract_correct_answers_with_boxes(sheet_type='corrected')
+    
+    return correct_answers
+
+
+def generate_student_id(length=6):
+    """Generates a random student ID consisting of uppercase letters and digits."""
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
+
+
 
 def process_images():
     # global corrected_sheet_uploaded
@@ -84,12 +163,6 @@ def get_image_paths(directory):
     image_files = [file for file in file_names if file.lower().endswith(('.png', '.jpg', '.jpeg'))]
     image_paths = [os.path.join(directory, file) for file in image_files]
     return image_paths
-
-def corrected_images():
-    # Placeholder function for corrected images
-    print("Corrected Images button clicked")
-    corrected_answers = extract_correct_answers_with_boxes()
-    print(corrected_answers)
 
 
 def extract_correct_answers_with_boxes():
@@ -248,10 +321,10 @@ def init_gui():
     # Add buttons to the inner frame in the center column
     button_width = 20
     button_height = 10  # Assuming each button has a height of 2 lines of text
-    btn_upload_corrected = tk.Button(inner_frame, text="Corrected Sheet", command=lambda: upload_and_convert_pdf(filedialog.askopenfilename(), "Corrected_sheet"), width=button_width, padx=20, pady=10, bg="lightblue", font=("Arial", 14))
+    btn_upload_corrected = tk.Button(inner_frame, text="Corrected Sheet", command=upload_corrected_sheet, width=button_width, padx=20, pady=10, bg="lightblue", font=("Arial", 14))
     btn_upload_corrected.grid(row=2, column=1, pady=5, sticky='ew')
 
-    btn_upload_students = tk.Button(inner_frame, text="Student Sheets", command=lambda: upload_and_convert_pdf(filedialog.askopenfilename(), "Student_sheet"), width=button_width, padx=20, pady=10, bg="lightgreen", font=("Arial", 14))
+    btn_upload_students = tk.Button(inner_frame, text="Student Sheets", command=upload_student_sheets, width=button_width, padx=20, pady=10, bg="lightgreen", font=("Arial", 14))
     btn_upload_students.grid(row=3, column=1, pady=5, sticky='ew')
 
     btn_process = tk.Button(inner_frame, text="Process Images", command=process_images, width=button_width, padx=20, pady=10, bg="lightcoral", font=("Arial", 14))
