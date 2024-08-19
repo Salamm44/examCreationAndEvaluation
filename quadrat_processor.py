@@ -8,22 +8,28 @@ class QuadratProcessor:
         self.prefix = prefix
         self.student_id = student_id
 
-    def extract_correct_answers_with_boxes(self, sheet_type='corrected'):
-        # List all files in the directory
-        file_names = os.listdir(self.directory)
-        
-        # Filter image files with the specified prefix (case-insensitive)
-        image_files = [file for file in file_names if file.lower().endswith(('.png', '.jpg', '.jpeg'))]
-        image_paths = [os.path.join(self.directory, file) for file in image_files if file.lower().startswith(self.prefix.lower())]
-        
-        # Debugging: Print the filtered image paths
-        print(f"Filtered image paths: {image_paths}")
-        
-        if not image_paths:
-            raise FileNotFoundError(f"No image with prefix '{self.prefix}' found in directory '{self.directory}'")
-        
-        # Process only the first sheet found
-        image_path = image_paths[0]
+    def extract_correct_answers_with_boxes(self, filename=None, sheet_type='corrected'):
+        if filename:
+            image_path = os.path.join(self.directory, filename)
+            if not os.path.exists(image_path):
+                raise FileNotFoundError(f"No image with filename '{filename}' found in directory '{self.directory}'")
+        else:
+            # List all files in the directory
+            file_names = os.listdir(self.directory)
+            print(f"Files in directory: {file_names}") 
+            
+            # Filter image files with the specified prefix (case-insensitive)
+            image_files = [file for file in file_names if file.lower().endswith(('.png', '.jpg', '.jpeg'))]
+            image_paths = [os.path.join(self.directory, file) for file in image_files if file.lower().startswith(self.prefix.lower())]
+            
+            # Debugging: Print the filtered image paths
+            print(f"Filtered image paths: {image_paths}")
+            
+            if not image_paths:
+                raise FileNotFoundError(f"No image with prefix '{self.prefix}' found in directory '{self.directory}'")
+            
+            # Process only the first sheet found
+            image_path = image_paths[0]
         
         # Preprocess the image
         image, binary = preprocess_image(image_path)

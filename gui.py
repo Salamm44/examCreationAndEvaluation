@@ -14,10 +14,16 @@ import easyocr
 from image_processing import detect_quadrats, preprocess_image
 from quadrat_processor import QuadratProcessor
 import uuid
-from answers_manager import set_correct_answers, calculate_score
-from student import Student, students  # Import the Student class from the appropriate module
+from answers_manager import set_correct_answers, calculate_score, set_answer_mark, get_correct_answers
+from student import Student, students, save_student_score  # Import the Student class from the appropriate module
 import string
 import random
+from dialogs import CorrectedSheetDialog 
+# answers_manager.py
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Define the path to your assets directory
 assets_dir = "./assets"
@@ -30,7 +36,6 @@ def ensure_dir(directory):
 # Ensure the directories exist
 ensure_dir(assets_dir)
 ensure_dir(processed_images_dir)
-
 
 def upload_and_convert_pdf(file_path, prefix, student_id = ""):
     """
@@ -45,40 +50,75 @@ def upload_and_convert_pdf(file_path, prefix, student_id = ""):
     ensure_dir(processed_images_dir)
 
     # Generate a timestamp and create the new filename including the student ID
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    new_filename = f"{prefix}_{student_id}_{timestamp}{os.path.splitext(file_path)[1]}"
+    # timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    
+    # Create the new filename including the student ID
+    if prefix == "corrected_sheet":
+        new_filename = f"{prefix}{os.path.splitext(file_path)[1]}"
+    else:
+        new_filename = f"{prefix}_{student_id}{os.path.splitext(file_path)[1]}"
+
     destination = os.path.join(assets_dir, new_filename)
 
-    # Copy the file to the destination directory
+
+    # Copy the file to the destination directory with the new name
+    # shutil.copy(file_path, destination)
+    # print(f"File copied to: {destination}")
+
+   # Rename the uploaded file to the new destination
     shutil.copy(file_path, destination)
+    print(f"File renamed and copyed to: {destination}")
 
     # Check if the uploaded file is a PDF
-    if file_path.lower().endswith('.pdf'):
+    if destination.lower().endswith('.pdf'):
         # Convert the PDF to an image and save it with the same base name as the new filename
         output_image_path = os.path.join(processed_images_dir, f"{os.path.splitext(new_filename)[0]}.jpg")
         convert_pdf_to_image(destination, output_path=output_image_path)
-        
-        # Notify the user that the PDF was uploaded and converted
-        messagebox.showinfo("File Selected", f"{prefix} uploaded and converted: {output_image_path}")
+
+        if os.path.exists(output_image_path):
+            print(f"PDF successfully converted to image: {output_image_path}")
+            return output_image_path
+        else:
+            raise FileNotFoundError(f"Failed to find the converted image at: {output_image_path}")
     else:
-        # Notify the user that a non-PDF file was uploaded
-        messagebox.showinfo("File Selected", f"{prefix} uploaded: {destination}")
+        print("Uploaded file is not a PDF. No conversion performed.")
+        return destination
 
 
 def upload_corrected_sheet():
     file_path = filedialog.askopenfilename()
     if file_path:
         try:
+            # Show the corrected sheet dialog
+            dialog = CorrectedSheetDialog(root)
+            correction_system = dialog.correction_system
+            answer_mark = dialog.answer_mark
+            print(f"Correction System: {correction_system}")
+            print(f"Mark per Correct Answer: {answer_mark}")
+
+            # Set the answer mark in answers_manager
+            set_answer_mark(answer_mark)
+
             # Step 1: Upload and convert PDF
             upload_and_convert_pdf(file_path, "corrected_sheet")
             
             # Step 2: Process the image after uploading
-            corrected_answers = corrected_images()  # Call the processing method immediately
-            set_correct_answers(corrected_answers)
-            messagebox.showinfo("Success", "Corrected sheet processed successfully.")
+            # corrected_answers = corrected_images() 
+
+            # Create a processor instance with the corrected sheet prefix
+            processor = QuadratProcessor(prefix='corrected_sheet')
             
+            # Process the corrected sheet to extract correct answers
+            corrected_answers = processor.extract_correct_answers_with_boxes(sheet_type='corrected')
+
+            # Set the correct answers
+            set_correct_answers(corrected_answers)
+
+            messagebox.showinfo("Success", "Corrected sheet processed successfully.")
+
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred while uploading the corrected sheet: {e}")
+
 
 def upload_student_sheets():
     file_path = filedialog.askopenfilename()
@@ -88,14 +128,51 @@ def upload_student_sheets():
             student_id = generate_student_id()
 
             # Upload and convert PDF
-            upload_and_convert_pdf(file_path, "student_sheet", student_id)
+            converted_image_path = upload_and_convert_pdf(file_path, "student_sheet", student_id)
+
+            # Extract the filename from the file path
+            filename = os.path.basename(converted_image_path)
+            print(f"Extracted filename: {filename}")
             
             # Create a processor instance with the student sheet prefix and student ID
             processor = QuadratProcessor(prefix='student_sheet', student_id=student_id)
             
             # Process the student's sheet
-            student_answers = processor.extract_correct_answers_with_boxes(sheet_type='student')
+            student_answers = processor.extract_correct_answers_with_boxes(filename=filename, sheet_type='student')
+
+            # Ensure correct answers are set before calculating the score
+            correct_answers = get_correct_answers()
+            if not correct_answers:
+                messagebox.showerror("Error", "Correct answers have not been set. Please upload the corrected sheet first.")
+                return
+            
+            # Validate student answers
+            if not isinstance(student_answers, list):
+                messagebox.showerror("Error", "Invalid data format for student answers. Expected a list.")
+                return
+            
+
+            if len(student_answers) != len(correct_answers):
+                messagebox.showerror("Error", f"Length mismatch: {len(student_answers)} student answers vs {len(correct_answers)} correct answers.")
+                return
+
+            # Log student answers for debugging
+            logging.debug(f"Student answers: {student_answers}")
+
             score = calculate_score(student_answers)
+
+            # Paths for storing sheets
+            corrected_sheet_path = f"{processed_images_dir}/{student_id}_corrected.png"
+            original_answered_sheet_path = converted_image_path
+
+            # Save the student score and relevant details
+            save_student_score(
+                student_id,
+                score,
+                student_answers_result=student_answers,
+                original_answered_sheet_path=original_answered_sheet_path,
+                corrected_sheet_path=corrected_sheet_path
+            )
             
             messagebox.showinfo("Success", f"Student sheet processed. Score: {score} | Student ID: {student_id}")
 

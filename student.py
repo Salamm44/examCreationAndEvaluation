@@ -10,6 +10,24 @@ def ensure_dir(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
+def save_student_score(student_id, score, student_answers_result, original_answered_sheet_path, corrected_sheet_path):
+    # Create a new student object
+    new_student = Student(
+        student_id=student_id,
+        name="Unknown",  # This can be updated with the actual student name if available
+        score=score,
+        student_answers_result=student_answers_result,
+        original_answered_sheet_path=original_answered_sheet_path,
+        corrected_sheet_path=corrected_sheet_path
+    )
+    
+    # Append the new student to the existing list
+    students.append(new_student)
+    
+    # Save the updated student list to the file
+    save_students_to_file(students, students_file)
+    
+
 def save_students_to_file(students, filename):
     with open(filename, 'w') as f:
         json.dump([student.__dict__ for student in students], f)
