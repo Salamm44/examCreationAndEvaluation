@@ -21,6 +21,10 @@ import random
 from dialogs import CorrectedSheetDialog 
 # answers_manager.py
 import logging
+from student import get_all_students
+from tkinter import ttk
+
+
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -83,6 +87,8 @@ def upload_and_convert_pdf(file_path, prefix, student_id = ""):
     else:
         print("Uploaded file is not a PDF. No conversion performed.")
         return destination
+
+
 
 
 def upload_corrected_sheet():
@@ -178,6 +184,27 @@ def upload_student_sheets():
 
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred while uploading the student sheet: {e}")
+
+
+def extract_results():
+    # Create a new window for displaying results
+    result_window = tk.Toplevel()
+    result_window.title("Student Results")
+
+    # Create a treeview to display the results
+    tree = ttk.Treeview(result_window, columns=("ID", "Name", "Score"), show='headings')
+    tree.heading("ID", text="Student ID")
+    tree.heading("Name", text="Name")
+    tree.heading("Score", text="Score")
+    tree.pack(fill=tk.BOTH, expand=True)
+
+    # Get all students
+    students = get_all_students()
+
+    # Insert student data into the treeview
+    for student in students:
+        tree.insert("", tk.END, values=(student.student_id, student.name, student.score))
+
 
 def corrected_images():
     print("Corrected Images button clicked")
@@ -404,12 +431,21 @@ def init_gui():
     btn_upload_students = tk.Button(inner_frame, text="Student Sheets", command=upload_student_sheets, width=button_width, padx=20, pady=10, bg="lightgreen", font=("Arial", 14))
     btn_upload_students.grid(row=3, column=1, pady=5, sticky='ew')
 
-    btn_process = tk.Button(inner_frame, text="Process Images", command=process_images, width=button_width, padx=20, pady=10, bg="lightcoral", font=("Arial", 14))
-    btn_process.grid(row=4, column=1, pady=5, sticky='ew')
+    # btn_process = tk.Button(inner_frame, text="Process Images", command=process_images, width=button_width, padx=20, pady=10, bg="lightcoral", font=("Arial", 14))
+    # btn_process.grid(row=4, column=1, pady=5, sticky='ew')
 
+   
     # Add new button for "Corrected Images"
-    btn_corrected_images = tk.Button(inner_frame, text="Correct Images", command=corrected_images, width=button_width, padx=20, pady=10, bg="lightyellow", font=("Arial", 14))
-    btn_corrected_images.grid(row=5, column=1, pady=5, sticky='ew')
+    # btn_corrected_images = tk.Button(inner_frame, text="Correct Images", command=corrected_images, width=button_width, padx=20, pady=10, bg="lightyellow", font=("Arial", 14))
+    # btn_corrected_images.grid(row=5, column=1, pady=5, sticky='ew')
+
+    #Todo (SALAM) create a new btn for results
+    # genreate method in guit call openResultWindow
+    # call get all student and render them as row in the result window
+
+    btn_results = tk.Button(inner_frame, text="Extract Results", command=extract_results, width=button_width, padx=20, pady=10, bg="lightyellow", font=("Arial", 14))
+    btn_results.grid(row=4, column=1, pady=5, sticky='ew')
+
 
 
     # Calculate the window size

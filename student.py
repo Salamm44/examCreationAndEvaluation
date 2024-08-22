@@ -23,7 +23,7 @@ def save_student_score(student_id, score, student_answers_result, original_answe
     
     # Append the new student to the existing list
     students.append(new_student)
-    
+
     # Save the updated student list to the file
     save_students_to_file(students, students_file)
     
@@ -32,12 +32,32 @@ def save_students_to_file(students, filename):
     with open(filename, 'w') as f:
         json.dump([student.__dict__ for student in students], f)
 
+# def load_students_from_file(filename):
+#     if os.path.exists(filename):
+#         with open(filename, 'r') as f:
+#             students_data = json.load(f)
+#             return [Student(**data) for data in students_data]
+#     return []
+
 def load_students_from_file(filename):
     if os.path.exists(filename):
-        with open(filename, 'r') as f:
-            students_data = json.load(f)
-            return [Student(**data) for data in students_data]
-    return []
+        try:
+            with open(filename, 'r') as f:
+                students_data = json.load(f)
+                if students_data:
+                    return [Student(**data) for data in students_data]
+                else:
+                    print(f"No data found in {filename}. Resetting students.")
+                    return []
+        except json.JSONDecodeError:
+            print(f"Error decoding JSON from {filename}. Resetting students.")
+            return []
+    else:
+        print(f"File {filename} does not exist. Resetting students.")
+        return []
+    
+# Load students from file on startup
+students = load_students_from_file(students_file)
 
 # Example function that might delete files
 def delete_student_sheet(sheet_path):
@@ -75,5 +95,8 @@ class Student:
                 f"student_answers_result={self.student_answers_result}, "
                 f"original_answered_sheet_path='{self.original_answered_sheet_path}', corrected_sheet_path='{self.corrected_sheet_path}')")
 
-# Load students from file on startup
-students = load_students_from_file(students_file)
+
+
+# # # My Addition
+def get_all_students():
+    return students
