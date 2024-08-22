@@ -33,12 +33,6 @@ def save_students_to_file(students, filename):
         json.dump([student.__dict__ for student in students], f)
 
 # def load_students_from_file(filename):
-#     if os.path.exists(filename):
-#         with open(filename, 'r') as f:
-#             students_data = json.load(f)
-#             return [Student(**data) for data in students_data]
-#     return []
-
 def load_students_from_file(filename):
     if os.path.exists(filename):
         try:

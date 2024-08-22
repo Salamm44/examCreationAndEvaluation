@@ -1,5 +1,8 @@
 import cv2
 import numpy as np
+# from pdf2image import convert_from_path
+# import pytesseract
+
 
 def preprocess_image(image_path):
     # Load image
@@ -79,3 +82,38 @@ def process_image_for_scoring(image_path, correct_answers):
     return processed_image, score
 
 
+# # My Addition
+
+# def convert_pdf_to_image(pdf_path, page_number=0):
+#     images = convert_from_path(pdf_path)
+#     return np.array(images[page_number])
+
+
+# def detect_text_regions(binary_image):
+#     contours, _ = cv2.findContours(binary_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+#     text_regions = []
+#     for contour in contours:
+#         x, y, w, h = cv2.boundingRect(contour)
+#         text_regions.append((x, y, w, h))
+#     return text_regions
+
+# def recognize_handwritten_text(image, text_regions):
+#     student_id = ""
+#     student_name = ""
+
+#     for (x, y, w, h) in text_regions:
+#         roi = image[y:y+h, x:x+w]
+#         text = pytesseract.image_to_string(roi, config='--psm 7')
+#         if text.isdigit():
+#             student_id = text
+#         elif text.isalpha():
+#             student_name = text
+#     return student_id, student_name
+
+
+# def detect_student_info(pdf_path):
+#     image = convert_pdf_to_image(pdf_path)
+#     binary_image = preprocess_image(image)
+#     text_regions = detect_text_regions(binary_image)
+#     student_id, student_name = recognize_handwritten_text(image, text_regions)
+#     return student_id, student_name
