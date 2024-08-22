@@ -6,6 +6,20 @@ assets_dir = "./assets"
 processed_images_dir = "./assets/processed_images"
 students_file = "students.json"
 
+class Student:
+    def __init__(self, student_id, name, score, student_answers_result, original_answered_sheet_path, corrected_sheet_path):
+        self.student_id = student_id
+        self.name = name
+        self.score = score
+        self.student_answers_result = student_answers_result
+        self.original_answered_sheet_path = original_answered_sheet_path
+        self.corrected_sheet_path = corrected_sheet_path
+
+    def __repr__(self):
+        return (f"Student(student_id={self.student_id}, name='{self.name}', score={self.score}, "
+                f"student_answers_result={self.student_answers_result}, "
+                f"original_answered_sheet_path='{self.original_answered_sheet_path}', corrected_sheet_path='{self.corrected_sheet_path}')")
+
 def ensure_dir(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
@@ -26,13 +40,11 @@ def save_student_score(student_id, score, student_answers_result, original_answe
 
     # Save the updated student list to the file
     save_students_to_file(students, students_file)
-    
 
 def save_students_to_file(students, filename):
     with open(filename, 'w') as f:
         json.dump([student.__dict__ for student in students], f)
 
-# def load_students_from_file(filename):
 def load_students_from_file(filename):
     if os.path.exists(filename):
         try:
@@ -49,7 +61,7 @@ def load_students_from_file(filename):
     else:
         print(f"File {filename} does not exist. Resetting students.")
         return []
-    
+
 # Load students from file on startup
 students = load_students_from_file(students_file)
 
@@ -75,22 +87,6 @@ def process_and_cleanup_student_sheets(sheet_paths):
 ensure_dir(assets_dir)
 ensure_dir(processed_images_dir)
 
-class Student:
-    def __init__(self, student_id, name, score, student_answers_result, original_answered_sheet_path, corrected_sheet_path):
-        self.student_id = student_id
-        self.name = name
-        self.score = score
-        self.student_answers_result = student_answers_result
-        self.original_answered_sheet_path = original_answered_sheet_path
-        self.corrected_sheet_path = corrected_sheet_path
-
-    def __repr__(self):
-        return (f"Student(student_id={self.student_id}, name='{self.name}', score={self.score}, "
-                f"student_answers_result={self.student_answers_result}, "
-                f"original_answered_sheet_path='{self.original_answered_sheet_path}', corrected_sheet_path='{self.corrected_sheet_path}')")
-
-
-
-# # # My Addition
+# My Addition
 def get_all_students():
     return students

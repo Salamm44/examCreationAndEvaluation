@@ -425,10 +425,10 @@ def init_gui():
     # Add buttons to the inner frame in the center column
     button_width = 20
     button_height = 10  # Assuming each button has a height of 2 lines of text
-    btn_upload_corrected = tk.Button(inner_frame, text="Corrected Sheet", command=upload_corrected_sheet, width=button_width, padx=20, pady=10, bg="lightblue", font=("Arial", 14))
+    btn_upload_corrected = tk.Button(inner_frame, text="Corrected Sheet", command=upload_corrected_sheet, width=button_width, padx=20, pady=10, bg="pink", font=("Arial", 14))
     btn_upload_corrected.grid(row=2, column=1, pady=5, sticky='ew')
 
-    btn_upload_students = tk.Button(inner_frame, text="Student Sheets", command=upload_student_sheets, width=button_width, padx=20, pady=10, bg="lightgreen", font=("Arial", 14))
+    btn_upload_students = tk.Button(inner_frame, text="Student Sheets", command=upload_student_sheets, width=button_width, padx=20, pady=10, bg="lightyellow", font=("Arial", 14))
     btn_upload_students.grid(row=3, column=1, pady=5, sticky='ew')
 
     # btn_process = tk.Button(inner_frame, text="Process Images", command=process_images, width=button_width, padx=20, pady=10, bg="lightcoral", font=("Arial", 14))
@@ -443,7 +443,7 @@ def init_gui():
     # genreate method in guit call openResultWindow
     # call get all student and render them as row in the result window
 
-    btn_results = tk.Button(inner_frame, text="Extract Results", command=extract_results, width=button_width, padx=20, pady=10, bg="lightyellow", font=("Arial", 14))
+    btn_results = tk.Button(inner_frame, text="Results", command=extract_results, width=button_width, padx=20, pady=10, bg="lightgreen", font=("Arial", 14))
     btn_results.grid(row=4, column=1, pady=5, sticky='ew')
 
 
