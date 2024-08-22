@@ -1,92 +1,102 @@
 import os
 import json
+from dataclasses import dataclass, field, asdict
+from typing import List
 
 # Define the path to your assets directory
-assets_dir = "./assets"
-processed_images_dir = "./assets/processed_images"
-students_file = "students.json"
+ASSETS_DIR = "./assets"
+PROCESSED_IMAGES_DIR = "./assets/processed_images"
+STUDENTS_FILE = "students.json"
 
+@dataclass
 class Student:
-    def __init__(self, student_id, name, score, student_answers_result, original_answered_sheet_path, corrected_sheet_path):
-        self.student_id = student_id
-        self.name = name
-        self.score = score
-        self.student_answers_result = student_answers_result
-        self.original_answered_sheet_path = original_answered_sheet_path
-        self.corrected_sheet_path = corrected_sheet_path
+    student_id: str
+    name: str = "Unknown"  # Default value if the name is not provided
+    score: float = 0.0
+    student_answers_result: List[str] = field(default_factory=list)
+    original_answered_sheet_path: str = ""
+    corrected_sheet_path: str = ""
 
-    def __repr__(self):
-        return (f"Student(student_id={self.student_id}, name='{self.name}', score={self.score}, "
-                f"student_answers_result={self.student_answers_result}, "
-                f"original_answered_sheet_path='{self.original_answered_sheet_path}', corrected_sheet_path='{self.corrected_sheet_path}')")
+    def __post_init__(self):
+        if not isinstance(self.student_id, str):
+            raise ValueError("student_id must be a string")
+        if not isinstance(self.name, str):
+            raise ValueError("name must be a string")
+        if not isinstance(self.score, (int, float)):
+            raise ValueError("score must be a number")
+        if not isinstance(self.student_answers_result, list):
+            raise ValueError("student_answers_result must be a list")
+        if not isinstance(self.original_answered_sheet_path, str):
+            raise ValueError("original_answered_sheet_path must be a string")
+        if not isinstance(self.corrected_sheet_path, str):
+            raise ValueError("corrected_sheet_path must be a string")
 
-def ensure_dir(directory):
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+def ensure_dir(directory: str):
+    """Ensures that a directory exists."""
+    os.makedirs(directory, exist_ok=True)
 
-def save_student_score(student_id, score, student_answers_result, original_answered_sheet_path, corrected_sheet_path):
-    # Create a new student object
-    new_student = Student(
-        student_id=student_id,
-        name="Unknown",  # This can be updated with the actual student name if available
-        score=score,
-        student_answers_result=student_answers_result,
-        original_answered_sheet_path=original_answered_sheet_path,
-        corrected_sheet_path=corrected_sheet_path
-    )
-    
-    # Append the new student to the existing list
-    students.append(new_student)
+def save_student_score(student: Student):
+    """Saves a single student's score to the students file."""
+    students = load_students_from_file(STUDENTS_FILE)
+    students.append(student)
+    save_students_to_file(students, STUDENTS_FILE)
 
-    # Save the updated student list to the file
-    save_students_to_file(students, students_file)
-
-def save_students_to_file(students, filename):
+def save_students_to_file(students: List[Student], filename: str):
+    """Saves the list of students to a JSON file."""
     with open(filename, 'w') as f:
-        json.dump([student.__dict__ for student in students], f)
+        json.dump([asdict(student) for student in students], f, indent=4)
 
-def load_students_from_file(filename):
+def load_students_from_file(filename: str) -> List[Student]:
+    """Loads students from a JSON file."""
     if os.path.exists(filename):
         try:
             with open(filename, 'r') as f:
                 students_data = json.load(f)
-                if students_data:
-                    return [Student(**data) for data in students_data]
-                else:
-                    print(f"No data found in {filename}. Resetting students.")
-                    return []
+                return [Student(**data) for data in students_data]
         except json.JSONDecodeError:
-            print(f"Error decoding JSON from {filename}. Resetting students.")
+            print(f"Error decoding JSON from {filename}. Returning empty list.")
             return []
     else:
-        print(f"File {filename} does not exist. Resetting students.")
+        print(f"File {filename} does not exist. Returning empty list.")
         return []
 
-# Load students from file on startup
-students = load_students_from_file(students_file)
-
-# Example function that might delete files
-def delete_student_sheet(sheet_path):
+def delete_student_sheet(sheet_path: str):
+    """Deletes a student sheet file if it exists."""
     if os.path.exists(sheet_path):
         os.remove(sheet_path)
-        # Check if there is any logic that deletes student.py
-        some_condition = False
-        if some_condition:
-            os.remove('student.py')  # This line would delete student.py
+        print(f"Deleted sheet: {sheet_path}")
+    else:
+        print(f"Sheet {sheet_path} does not exist.")
 
-# Example usage of delete_student_sheet
-def process_and_cleanup_student_sheets(sheet_paths):
+def process_and_cleanup_student_sheets(sheet_paths: List[str]):
+    """Processes and cleans up a list of student sheet files."""
     for sheet_path in sheet_paths:
-        # Process the sheet (placeholder for actual processing logic)
+        # Placeholder for actual processing logic
         print(f"Processing {sheet_path}")
-        
-        # Delete the sheet after processing
+        # After processing, delete the sheet
         delete_student_sheet(sheet_path)
 
-# Ensure the directories exist
-ensure_dir(assets_dir)
-ensure_dir(processed_images_dir)
+def get_all_students() -> List[Student]:
+    """Retrieves all students from the students file."""
+    return load_students_from_file(STUDENTS_FILE)
 
-# My Addition
-def get_all_students():
-    return students
+# Ensure necessary directories exist
+ensure_dir(ASSETS_DIR)
+ensure_dir(PROCESSED_IMAGES_DIR)
+
+# Example usage
+if __name__ == "__main__":
+    # Create a sample student and save
+    sample_student = Student(
+        student_id="12345",
+        name="John Doe",
+        score=95.5,
+        student_answers_result=["A", "B", "C", "D"],
+        original_answered_sheet_path="./assets/original/12345.png",
+        corrected_sheet_path="./assets/processed_images/12345_corrected.png"
+    )
+    save_student_score(sample_student)
+
+    # Retrieve all students
+    all_students = get_all_students()
+    print(all_students)
