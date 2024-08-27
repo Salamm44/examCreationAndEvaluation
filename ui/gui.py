@@ -1,9 +1,9 @@
 # ui/gui.py
 
 import tkinter as tk
-from tkinter import ttk
-from .event_handlers.file_upload import upload_corrected_sheet, upload_student_sheets
-from .event_handlers.results import extract_results
+from ui.event_handlers.file_upload import upload_corrected_sheet, upload_student_sheets
+from ui.event_handlers.results import extract_results
+from allstudent.student import clear_students_file
 
 def init_gui():
     root = tk.Tk()
@@ -27,6 +27,12 @@ def init_gui():
     inner_frame.grid_columnconfigure(0, weight=1)
 
     button_width = 20
+
+    # Function to handle the reset button click
+    def reset_students_file():
+        clear_students_file()
+        tk.messagebox.showinfo("Reset", "The students database has been reset.")
+
 
     btn_upload_corrected = tk.Button(
         inner_frame,
@@ -63,6 +69,20 @@ def init_gui():
         font=("Arial", 14)
     )
     btn_results.grid(row=4, column=1, pady=5, sticky='ew')
+
+
+        # Add the button to the GUI
+    btn_reset_students = tk.Button(
+        inner_frame,
+        text="Reset Students",
+        command=reset_students_file,
+        width=button_width,
+        padx=20,
+        pady=10,
+        bg="lightblue",
+        font=("Arial", 14)
+    )
+    btn_reset_students.grid(row=5, column=1, pady=5, sticky='ew')
 
     # Calculate the window size
     window_width = button_width * 10 + 40

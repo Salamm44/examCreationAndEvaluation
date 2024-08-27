@@ -4,7 +4,7 @@ import os
 import cv2
 import numpy as np
 from tkinter import messagebox
-from quadrat_processor import QuadratProcessor
+from sheet_correction.quadrat_processor import QuadratProcessor
 from image_processing import preprocess_image, detect_quadrats
 
 def process_images(processed_images_dir):

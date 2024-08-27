@@ -1,20 +1,18 @@
+from tkinter import filedialog, messagebox, tk, ttk
+from sheet_correction.quadrat_processor import QuadratProcessor
+from answers_manager import set_correct_answers, calculate_score, set_answer_mark, get_correct_answers
+from .dialog import CorrectedSheetDialog
+from pdf_utils import convert_pdf_to_image
+from sheet_correction.image_processing import preprocess_image, detect_quadrats
+from datetime import datetime
+from ..allstudent.student import save_student_score, get_all_students
+import logging
 import os
 import shutil
-import logging
-import tkinter as tk
-from tkinter import filedialog, messagebox, ttk
-from quadrat_processor import QuadratProcessor
-from answers_manager import set_correct_answers, calculate_score, set_answer_mark, get_correct_answers
-from student import save_student_score, get_all_students
-from .dialog import CorrectedSheetDialog
 import string
 import random
-from pdf_utils import convert_pdf_to_image
-from image_processing import preprocess_image, detect_quadrats
 import cv2
 import numpy as np
-from datetime import datetime
-
 # Set up logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 

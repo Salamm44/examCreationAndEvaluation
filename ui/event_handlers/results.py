@@ -2,8 +2,8 @@
 
 import tkinter as tk
 from tkinter import ttk
-from answers_manager import get_correct_answers
-from student import get_all_students
+
+from allstudent.student import get_all_students
 
 def extract_results():
     # Create a new window for displaying results
@@ -22,4 +22,5 @@ def extract_results():
 
     # Insert student data into the treeview
     for student in students:
-        tree.insert("", tk.END, values=(student.student_id, student.name, student.score))
+       tree.insert("", tk.END, values=(student.student_id, student.name, student.score))
+    pass

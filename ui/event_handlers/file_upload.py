@@ -2,15 +2,14 @@
 
 import os
 from tkinter import filedialog, messagebox
+from allstudent.student import save_student_score, Student
+
 from ..dialog import CorrectedSheetDialog
-from quadrat_processor import QuadratProcessor
+from sheet_correction.quadrat_processor import QuadratProcessor
 from answers_manager import set_correct_answers, calculate_score, set_answer_mark, get_correct_answers
-from student import Student, save_student_score, get_all_students
-from pdf_utils import convert_pdf_to_image
-from image_processing import preprocess_image, detect_quadrats
 from .utils import upload_and_convert_pdf, generate_student_id
-import sys
 import logging
+
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -21,7 +20,6 @@ def upload_corrected_sheet(root):
     if file_path:
         try:
             dialog = CorrectedSheetDialog(root)
-
             # Assuming correction_system and answer_mark are strings, not widgets
             correction_system = dialog.correction_system
             answer_mark = dialog.answer_mark
@@ -65,7 +63,7 @@ def upload_student_sheets(root):
             logging.debug(f"Extracted filename: {filename}")
 
             # Create a processor instance with the student sheet prefix and student ID
-            processor = QuadratProcessor(prefix='student_sheet', student_id=student_id)
+            processor =QuadratProcessor(prefix='student_sheet', student_id=student_id)
 
             # Process the student's sheet
             student_answers = processor.extract_correct_answers_with_boxes(filename=filename, sheet_type='student')

@@ -1,6 +1,6 @@
 import os
 import cv2
-from image_processing import detect_quadrats, preprocess_image
+from .image_processing import detect_quadrats, preprocess_image
 
 class QuadratProcessor:
     def __init__(self, directory='./assets/processed_images', prefix='corrected_sheet', student_id=None):

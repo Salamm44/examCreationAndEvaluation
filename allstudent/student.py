@@ -4,9 +4,9 @@ from dataclasses import dataclass, field, asdict
 from typing import List
 
 # Define the path to your assets directory
-ASSETS_DIR = "./assets"
-PROCESSED_IMAGES_DIR = "./assets/processed_images"
-STUDENTS_FILE = "students.json"
+ASSETS_DIR = os.path.join(".", "assets")
+PROCESSED_IMAGES_DIR = os.path.join(ASSETS_DIR, "processed_images")
+STUDENTS_FILE = os.path.join(ASSETS_DIR, "students.json")
 
 @dataclass
 class Student:
@@ -16,6 +16,14 @@ class Student:
     student_answers_result: List[str] = field(default_factory=list)
     original_answered_sheet_path: str = ""
     corrected_sheet_path: str = ""
+
+
+
+def __init__(self, student_id, name, age, student_answers_result=None):
+    self.student_id = student_id
+    self.name = name
+    self.age = age
+    self.student_answers_result = student_answers_result
 
     def __post_init__(self):
         if not isinstance(self.student_id, str):
@@ -79,6 +87,10 @@ def process_and_cleanup_student_sheets(sheet_paths: List[str]):
 def get_all_students() -> List[Student]:
     """Retrieves all students from the students file."""
     return load_students_from_file(STUDENTS_FILE)
+
+def clear_students_file():
+    with open(STUDENTS_FILE, 'w') as file:
+        json.dump([], file)
 
 # Ensure necessary directories exist
 ensure_dir(ASSETS_DIR)

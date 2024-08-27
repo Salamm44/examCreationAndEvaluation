@@ -44,8 +44,8 @@ for contour in filtered_contours:
         if is_bubble_filled(checkbox_roi):
             print(f"Checkbox Field {checkbox_field_number}: Filled")
             break
-    else:
-        print(f"Checkbox Field {checkbox_field_number}: Not Filled")
+        else:
+            print(f"Checkbox Field {checkbox_field_number}: Not Filled")
     
     checkbox_field_number += 1
 
