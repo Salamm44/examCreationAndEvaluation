@@ -27,6 +27,11 @@ filtered_contours = sorted(filtered_contours, key=lambda c: cv2.boundingRect(c)[
 def is_bubble_filled(bubble_roi):
     return cv2.countNonZero(bubble_roi) > 200
 
+# Estimate the number of checkboxes per question
+total_height = sum(cv2.boundingRect(c)[3] for c in filtered_contours)
+average_height = total_height / len(filtered_contours)
+num_checkboxes_per_question = round(average_height / (average_height / len(filtered_contours)))
+
 checkbox_field_number = 1
 
 for contour in filtered_contours:
@@ -35,9 +40,9 @@ for contour in filtered_contours:
     
     roi = thresh[y:y+h, x:x+w]
     height, width = roi.shape
-    checkbox_height = height // 3
+    checkbox_height = height // num_checkboxes_per_question
     
-    for i in range(3):
+    for i in range(num_checkboxes_per_question):
         checkbox_roi = roi[i*checkbox_height:(i+1)*checkbox_height, :]
         cv2.rectangle(image, (x, y + i*checkbox_height), (x + w, y + (i+1)*checkbox_height), (255, 0, 0), 2)
         

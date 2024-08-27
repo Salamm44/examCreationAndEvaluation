@@ -8,7 +8,7 @@ class CorrectedSheetDialog(simpledialog.Dialog):
         tk.Label(master, text="Correction System:").grid(row=0, column=0, sticky=tk.W)
         self.correction_system_var = tk.StringVar(master)
         self.correction_system_var.set("Corrected System")
-        self.correction_system_menu = tk.OptionMenu(master, self.correction_system_var, "Corrected System")
+        self.correction_system_menu = tk.OptionMenu(master, self.correction_system_var, "System1")
         self.correction_system_menu.grid(row=0, column=1)
 
         tk.Label(master, text="Mark per Correct Answer:").grid(row=1, column=0, sticky=tk.W)
