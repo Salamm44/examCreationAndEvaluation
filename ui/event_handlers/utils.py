@@ -1,8 +1,6 @@
 # ui/event_handlers/utils.py
 
 import os
-import shutil
-import logging
 from pdf_utils import convert_pdf_to_image
 import string
 import random

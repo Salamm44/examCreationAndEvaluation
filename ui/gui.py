@@ -58,20 +58,6 @@ def init_gui():
     )
     btn_upload_students.grid(row=3, column=1, pady=5, sticky='ew')
 
-    btn_results = tk.Button(
-        inner_frame,
-        text="Results",
-        command=extract_results,
-        width=button_width,
-        padx=20,
-        pady=10,
-        bg="lightgreen",
-        font=("Arial", 14)
-    )
-    btn_results.grid(row=4, column=1, pady=5, sticky='ew')
-
-
-        # Add the button to the GUI
     btn_reset_students = tk.Button(
         inner_frame,
         text="Reset Students",
@@ -82,7 +68,21 @@ def init_gui():
         bg="lightblue",
         font=("Arial", 14)
     )
-    btn_reset_students.grid(row=5, column=1, pady=5, sticky='ew')
+    btn_reset_students.grid(row=4, column=1, pady=5, sticky='ew')
+
+    btn_results = tk.Button(
+        inner_frame,
+        text="Results",
+        command=extract_results,
+        width=button_width,
+        padx=20,
+        pady=10,
+        bg="lightgreen",
+        font=("Arial", 14)
+    )
+    btn_results.grid(row=5, column=1, pady=5, sticky='ew')
+
+
 
     # Calculate the window size
     window_width = button_width * 10 + 40

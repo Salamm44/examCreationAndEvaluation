@@ -1,6 +1,11 @@
 import os
 import cv2
 from .image_processing import detect_quadrats, preprocess_image
+import pytesseract
+from PIL import Image
+import logging
+import re
+from ui.event_handlers.utils import upload_and_convert_pdf 
 
 class QuadratProcessor:
     def __init__(self, directory='./assets/processed_images', prefix='corrected_sheet', student_id=None):
@@ -8,6 +13,87 @@ class QuadratProcessor:
         self.prefix = prefix
         self.student_id = student_id
 
+    def extract_text_from_region(self, image_path, region):
+        """
+        Extracts text from a specified region of the image.
+
+        Args:
+            image_path (str): The path to the image file.
+            region (tuple): A tuple specifying the region (x, y, width, height).
+
+        Returns:
+            str: The extracted text.
+        """
+        image = Image.open(image_path)
+        cropped_image = image.crop(region)
+        text = pytesseract.image_to_string(cropped_image)
+        return text.strip()
+
+    
+    def detect_student_info(self, image_path):
+        """
+        Detects student information from the given image.
+
+        Args:
+            image_path (str): Path to the image file.
+
+        Returns:
+            dict: A dictionary containing student information such as student_id and student_name.
+        """
+        try:
+            # Load the image using OpenCV
+            image = cv2.imread(image_path)
+            
+            # Check if the image was loaded successfully
+            if image is None:
+                logging.error(f"Failed to load image from path: {image_path}")
+                return {}
+
+            # Convert the image to grayscale
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+            # Apply binary thresholding
+            _, binary_image = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY_INV)
+
+            # Detect text regions and recognize text
+            student_id, student_name = self.detect_and_recognize_text(binary_image, image)
+
+            return {
+                'student_id': student_id,
+                'student_name': student_name
+            }
+
+        except Exception as e:
+            logging.error(f"An error occurred while detecting student info: {e}")
+            return {}
+
+    def detect_and_recognize_text(self, binary_image, original_image):
+        """
+        Detects text regions in the binary image and recognizes handwritten text.
+
+        Args:
+            binary_image (numpy.ndarray): The binary image.
+            original_image (numpy.ndarray): The original image.
+
+        Returns:
+            tuple: A tuple containing the student ID and student name.
+        """
+        contours, _ = cv2.findContours(binary_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        student_id = ""
+        student_name = ""
+
+        for contour in contours:
+            x, y, w, h = cv2.boundingRect(contour)
+            roi = original_image[y:y+h, x:x+w]
+            text = pytesseract.image_to_string(roi, config='--psm 7')
+            if text.isdigit():
+                student_id = text
+            elif text.isalpha():
+                student_name = text
+
+        return student_id, student_name
+    
+    
     def extract_correct_answers_with_boxes(self, filename=None, sheet_type='corrected'):
         if filename:
             image_path = os.path.join(self.directory, filename)

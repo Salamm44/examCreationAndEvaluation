@@ -1,7 +1,9 @@
 import os
+import glob
 import json
 from dataclasses import dataclass, field, asdict
 from typing import List
+from sheet_correction.quadrat_processor import QuadratProcessor 
 
 # Define the path to your assets directory
 ASSETS_DIR = os.path.join(".", "assets")
@@ -16,8 +18,6 @@ class Student:
     student_answers_result: List[str] = field(default_factory=list)
     original_answered_sheet_path: str = ""
     corrected_sheet_path: str = ""
-
-
 
 def __init__(self, student_id, name, age, student_answers_result=None):
     self.student_id = student_id
@@ -38,6 +38,22 @@ def __init__(self, student_id, name, age, student_answers_result=None):
             raise ValueError("original_answered_sheet_path must be a string")
         if not isinstance(self.corrected_sheet_path, str):
             raise ValueError("corrected_sheet_path must be a string")
+        
+
+    @classmethod
+    def from_image(cls, image_path: str):
+        """
+        Creates a Student instance by detecting student information from an image.
+
+        Args:
+            image_path (str): The path to the image file.
+
+        Returns:
+            Student: A Student instance with detected information.
+        """
+        processor = QuadratProcessor(prefix='student_sheet', student_id='unknown')
+        student_name, student_id = processor.detect_student_info(image_path)
+        return cls(student_id=student_id, name=student_name, original_answered_sheet_path=image_path)
 
 def ensure_dir(directory: str):
     """Ensures that a directory exists."""
@@ -92,12 +108,36 @@ def clear_students_file():
     with open(STUDENTS_FILE, 'w') as file:
         json.dump([], file)
 
+    # Remove all images in the processed images directory
+    image_files = glob.glob(os.path.join(PROCESSED_IMAGES_DIR, '*'))
+    for image_file in image_files:
+        try:
+            os.remove(image_file)
+            print(f"Deleted {image_file}")
+        except Exception as e:
+            print(f"Error deleting {image_file}: {e}")
+
 # Ensure necessary directories exist
 ensure_dir(ASSETS_DIR)
 ensure_dir(PROCESSED_IMAGES_DIR)
 
 # Example usage
 if __name__ == "__main__":
+    # Iterate over all files in the processed_images directory
+    for filename in os.listdir(PROCESSED_IMAGES_DIR):
+        file_path = os.path.join(PROCESSED_IMAGES_DIR, filename)
+        
+        # Create a Student instance from each image
+        student = Student.from_image(file_path)
+        print(f"Student Name: {student.name}")
+        print(f"Student ID: {student.student_id}")
+
+    # Save the student score
+    student.score = 95.5
+    student.student_answers_result = ["A", "B", "C", "D"]
+    student.corrected_sheet_path = "./assets/processed_images/12345_corrected.png"
+    save_student_score(student)
+
     # Create a sample student and save
     sample_student = Student(
         student_id="12345",
@@ -111,4 +151,5 @@ if __name__ == "__main__":
 
     # Retrieve all students
     all_students = get_all_students()
-    print(all_students)
+    for student in all_students:
+        print(student)
