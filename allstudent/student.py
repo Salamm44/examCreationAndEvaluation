@@ -6,9 +6,10 @@ from typing import List
 from sheet_correction.quadrat_processor import QuadratProcessor 
 
 # Define the path to your assets directory
+ROOT_DIR = os.path.join(".", "allstudent")
 ASSETS_DIR = os.path.join(".", "assets")
 PROCESSED_IMAGES_DIR = os.path.join(ASSETS_DIR, "processed_images")
-STUDENTS_FILE = os.path.join(ASSETS_DIR, "students.json")
+STUDENTS_FILE = os.path.join(ROOT_DIR, "students.json")
 
 @dataclass
 class Student:
@@ -121,35 +122,36 @@ def clear_students_file():
 ensure_dir(ASSETS_DIR)
 ensure_dir(PROCESSED_IMAGES_DIR)
 
+##### i commented this out because it is not necessary for the project
 # Example usage
-if __name__ == "__main__":
+#if __name__ == "__main__":
     # Iterate over all files in the processed_images directory
-    for filename in os.listdir(PROCESSED_IMAGES_DIR):
-        file_path = os.path.join(PROCESSED_IMAGES_DIR, filename)
+   # for filename in os.listdir(PROCESSED_IMAGES_DIR):
+       # file_path = os.path.join(PROCESSED_IMAGES_DIR, filename)
         
         # Create a Student instance from each image
-        student = Student.from_image(file_path)
-        print(f"Student Name: {student.name}")
-        print(f"Student ID: {student.student_id}")
+       # student = Student.from_image(file_path)
+        #print(f"Student Name: {student.name}")
+        #print(f"Student ID: {student.student_id}")
 
     # Save the student score
-    student.score = 95.5
-    student.student_answers_result = ["A", "B", "C", "D"]
-    student.corrected_sheet_path = "./assets/processed_images/12345_corrected.png"
-    save_student_score(student)
+   # student.score = 95.5
+    #student.student_answers_result = ["A", "B", "C", "D"]
+    #student.corrected_sheet_path = "./assets/processed_images/12345_corrected.png"
+    #save_student_score(student)
 
     # Create a sample student and save
-    sample_student = Student(
-        student_id="12345",
-        name="John Doe",
-        score=95.5,
-        student_answers_result=["A", "B", "C", "D"],
-        original_answered_sheet_path="./assets/original/12345.png",
-        corrected_sheet_path="./assets/processed_images/12345_corrected.png"
-    )
-    save_student_score(sample_student)
+    #sample_student = Student(
+     #   student_id="12345",
+      #  name="John Doe",
+       # score=95.5,
+        #student_answers_result=["A", "B", "C", "D"],
+        #original_answered_sheet_path="./assets/original/12345.png",
+        #corrected_sheet_path="./assets/processed_images/12345_corrected.png"
+   # )
+    #save_student_score(sample_student)
 
     # Retrieve all students
-    all_students = get_all_students()
-    for student in all_students:
-        print(student)
+   # all_students = get_all_students()
+    #for student in all_students:
+     #   print(student)
