@@ -1,0 +1,50 @@
+[
+    {
+        "student_id": "IJ02NZ",
+        "name": "Unknown",
+        "score": 6.0,
+        "student_answers_result": [
+            0,
+            1,
+            1,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1
+        ],
+        "original_answered_sheet_path": "./assets/processed_images\\student_sheet_IJ02NZ.png",
+        "corrected_sheet_path": "./assets/processed_images\\IJ02NZ_corrected.png"
+    },
+    {
+        "student_id": "U7F6PV",
+        "name": "Unknown",
+        "score": 6.0,
+        "student_answers_result": [
+            0,
+            1,
+            1,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1
+        ],
+        "original_answered_sheet_path": "./assets/processed_images\\student_sheet_U7F6PV.png",
+        "corrected_sheet_path": "./assets/processed_images\\U7F6PV_corrected.png"
+    }
+]

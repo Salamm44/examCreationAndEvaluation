@@ -46,7 +46,6 @@ Thumbs.db
 *.jpeg
 *.png
 *.gif
-*.json
 
 # Assets and processed images directory
 /assets/
