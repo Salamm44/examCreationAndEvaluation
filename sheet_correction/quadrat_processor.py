@@ -40,6 +40,8 @@ class QuadratProcessor:
         Returns:
             dict: A dictionary containing student information such as student_id and student_name.
         """
+        nameroi=None
+        idroi=None
         try:
             # Load the image using OpenCV
             image = cv2.imread(image_path)
@@ -52,11 +54,22 @@ class QuadratProcessor:
             # Convert the image to grayscale
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
+            list_of_info_locations=[[ 1045 , 27 , 171 , 40 ] , [ 996 , 69 , 223 , 39]]
+            for i, location in enumerate(list_of_info_locations):
+                if i == 0:
+                    x, y, w, h = location
+                    nameroi=gray[y:y+h , x:x+w]
+                elif i == 1:
+                    x2, y2, w2, h2 = location
+                    idroi=gray[y2:y2+h2 , x2:x2+w2 ]
+
+
             # Apply binary thresholding
-            _, binary_image = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY_INV)
+            _, binary_image1 = cv2.threshold(nameroi, 128, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+            _, binary_image2 = cv2.threshold(idroi, 128, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
 
             # Detect text regions and recognize text
-            student_id, student_name = self.detect_and_recognize_text(binary_image, image)
+            student_id, student_name = self.detect_and_recognize_text(binary_image1, binary_image2)
 
             return {
                 'student_id': student_id,
@@ -67,7 +80,7 @@ class QuadratProcessor:
             logging.error(f"An error occurred while detecting student info: {e}")
             return {}
 
-    def detect_and_recognize_text(self, binary_image, original_image):
+    def detect_and_recognize_text(self, binary_image1, binary_image2):
         """
         Detects text regions in the binary image and recognizes handwritten text.
 
@@ -78,18 +91,20 @@ class QuadratProcessor:
         Returns:
             tuple: A tuple containing the student ID and student name.
         """
-        contours, _ = cv2.findContours(binary_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        #contours, _ = cv2.findContours(binary_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         student_id = ""
         student_name = ""
-
-        for contour in contours:
+        student_name=pytesseract.image_to_string(binary_image1 , config='--psm 7')
+        student_id=pytesseract.image_to_string(binary_image2 , config='--psm 7')
+        """for contour in contours:
             x, y, w, h = cv2.boundingRect(contour)
             roi = original_image[y:y+h, x:x+w]
             text = pytesseract.image_to_string(roi, config='--psm 7')
             if text.isdigit():
                 student_id = text
             elif text.isalpha():
-                student_name = text
+                student_name = text"""
+        
 
         return student_id, student_name
     
