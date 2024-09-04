@@ -94,8 +94,8 @@ class QuadratProcessor:
         #contours, _ = cv2.findContours(binary_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         student_id = ""
         student_name = ""
-        student_name=pytesseract.image_to_string(binary_image1 , config='--psm 7')
-        student_id=pytesseract.image_to_string(binary_image2 , config='--psm 7')
+        student_name=pytesseract.image_to_string(binary_image1 )
+        student_id=pytesseract.image_to_string(binary_image2 )
         """for contour in contours:
             x, y, w, h = cv2.boundingRect(contour)
             roi = original_image[y:y+h, x:x+w]
