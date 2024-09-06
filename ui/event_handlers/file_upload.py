@@ -63,8 +63,10 @@ def process_student_sheet(file_path):
     # Create a processor instance
     processor = QuadratProcessor(prefix='student_sheet')
 
+    converted_image_path_for_info=upload_and_convert_pdf(file_path,"student_sheet_for_info")
+
     # Extract student info from the sheet
-    student_info = processor.detect_student_info(file_path)
+    student_info = processor.detect_student_info(converted_image_path_for_info)
     logging.debug(f"Student info: {student_info}")
     student_id = student_info.get('student_id')
     student_name = student_info.get('student_name', 'Unknown')

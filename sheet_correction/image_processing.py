@@ -25,7 +25,7 @@ def preprocess_image(image_path):
 
     return image, binary
 
-def detect_quadrats(image, binary):
+"""def detect_quadrats(image, binary):
     contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     empty_quadrats = []
@@ -49,7 +49,39 @@ def detect_quadrats(image, binary):
     for contour in filled_quadrats:
         cv2.drawContours(image, [contour], -1, color=(0, 255, 0), thickness=2)
 
-    return image, filled_quadrats, empty_quadrats
+    return image, filled_quadrats, empty_quadrats"""
+def detect_quadrats(image, binary):
+    # Define the ROI
+    x, y, w, h = 20, 250, 1200, 1754
+    roi_image = image[y:y+h, x:x+w]
+    roi_binary = binary[y:y+h, x:x+w]
+
+    # Find contours within the ROI
+    contours, _ = cv2.findContours(roi_binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    empty_quadrats = []
+    filled_quadrats = []
+
+    for contour in contours:
+        area = cv2.contourArea(contour)
+        if 500 < area < 800:  # Assuming quadrat area falls within this range
+            mask = np.zeros_like(roi_binary)
+            cv2.drawContours(mask, [contour], -1, color=255, thickness=-1)
+            mean_val = cv2.mean(cv2.cvtColor(roi_image, cv2.COLOR_BGR2GRAY), mask=mask)[0]
+
+            if mean_val > 180:  # Adjusted threshold for distinguishing between empty and filled quadrats
+                empty_quadrats.append(contour)
+            else:
+                filled_quadrats.append(contour)
+
+    # Draw the contours on the original image (if needed)
+    for contour in empty_quadrats:
+        cv2.drawContours(roi_image, [contour], -1, color=(0, 0, 255), thickness=2)
+
+    for contour in filled_quadrats:
+        cv2.drawContours(roi_image, [contour], -1, color=(0, 255, 0), thickness=2)
+
+    return roi_image, filled_quadrats, empty_quadrats
 
 
 

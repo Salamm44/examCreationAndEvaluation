@@ -8,6 +8,7 @@ import re
 from ui.event_handlers.utils import upload_and_convert_pdf 
 
 class QuadratProcessor:
+    pytesseract.pytesseract.tesseract_cmd=r"C:\Program Files\Tesseract-OCR\tesseract.exe"
     def __init__(self, directory='./assets/processed_images', prefix='corrected_sheet', student_id=None):
         self.directory = directory
         self.prefix = prefix
@@ -53,8 +54,10 @@ class QuadratProcessor:
 
             # Convert the image to grayscale
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            #test_id_roi_img=gray[ 977 , 111 , 201 , 43]
+            #cv2.imwrite(r"C:\Users\tiger\Desktop\sheeeefooooo.jpg" ,test_id_roi_img)
 
-            list_of_info_locations=[[ 1045 , 27 , 171 , 40 ] , [ 996 , 69 , 223 , 39]]
+            list_of_info_locations=[[ 1019 , 72 ,194 , 39 ] , [ 977 , 111 , 201 , 43]]
             for i, location in enumerate(list_of_info_locations):
                 if i == 0:
                     x, y, w, h = location
@@ -94,8 +97,8 @@ class QuadratProcessor:
         #contours, _ = cv2.findContours(binary_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         student_id = ""
         student_name = ""
-        student_name=pytesseract.image_to_string(binary_image1 , config='--psm 7')
-        student_id=pytesseract.image_to_string(binary_image2 , config='--psm 7')
+        student_name=pytesseract.image_to_string(binary_image1 , config='--psm 8').strip()    
+        student_id=pytesseract.image_to_string(binary_image2 , config='--psm 8').strip()
         """for contour in contours:
             x, y, w, h = cv2.boundingRect(contour)
             roi = original_image[y:y+h, x:x+w]
