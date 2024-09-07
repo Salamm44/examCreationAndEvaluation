@@ -57,7 +57,7 @@ class QuadratProcessor:
             #test_id_roi_img=gray[ 977 , 111 , 201 , 43]
             #cv2.imwrite(r"C:\Users\tiger\Desktop\sheeeefooooo.jpg" ,test_id_roi_img)
 
-            list_of_info_locations=[[ 1019 , 72 ,194 , 39 ] , [ 977 , 111 , 201 , 43]]
+            list_of_info_locations=[[ 1219 , 22 ,250 , 39 ] ,[ 1219 , 72 ,250 , 39 ]]
             for i, location in enumerate(list_of_info_locations):
                 if i == 0:
                     x, y, w, h = location
