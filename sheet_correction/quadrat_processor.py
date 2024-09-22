@@ -57,22 +57,34 @@ class QuadratProcessor:
             #test_id_roi_img=gray[ 977 , 111 , 201 , 43]
             #cv2.imwrite(r"C:\Users\tiger\Desktop\sheeeefooooo.jpg" ,test_id_roi_img)
 
-            list_of_info_locations=[[ 1219 , 22 ,250 , 39 ] ,[ 1280 , 70 ,330 , 50 ]]
+            list_of_info_locations=[[ 1219 , 22 ,250 , 39 ] ,[ 1120 , 65 ,530 , 60 ]]
+            kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))  # 3x3 rectangle
+            
             for i, location in enumerate(list_of_info_locations):
                 if i == 0:
                     x, y, w, h = location
-                    nameroi=gray[y:y+h , x:x+w]
+                    nameroi=cv2.GaussianBlur(gray[y:y+h , x:x+w], (5, 5), 0)
                 elif i == 1:
                     x2, y2, w2, h2 = location
-                    idroi=gray[y2:y2+h2 , x2:x2+w2 ]
+                    idroi=cv2.GaussianBlur(gray[y2:y2+h2 , x2:x2+w2 ], (5, 5), 0)
 
 
             # Apply binary thresholding
             _, binary_image1 = cv2.threshold(nameroi, 128, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
             _, binary_image2 = cv2.threshold(idroi, 128, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
 
+            eroded_image1 = cv2.erode(binary_image1, kernel, iterations=1)
+
+            # Apply dilation to fill gaps and restore object size
+            dilated_image1 = cv2.dilate(eroded_image1, kernel, iterations=1)
+
+            eroded_image2 = cv2.erode(binary_image2, kernel, iterations=1)
+
+            # Apply dilation to fill gaps and restore object size
+            dilated_image2 = cv2.dilate(eroded_image2, kernel, iterations=1)
+
             # Detect text regions and recognize text
-            student_id, student_name = self.detect_and_recognize_text(binary_image1, binary_image2)
+            student_id, student_name = self.detect_and_recognize_text(dilated_image1, dilated_image2)
 
             return {
                 'student_id': student_id,
@@ -98,7 +110,7 @@ class QuadratProcessor:
         student_id = ""
         student_name = ""
         student_name=pytesseract.image_to_string(binary_image1 , config='--psm 8').strip()    
-        student_id=pytesseract.image_to_string(binary_image2 , config='--psm 8').strip()
+        student_id=pytesseract.image_to_string(binary_image2 , config='--psm 7 -c tessedit_char_whitelist=0123456789').strip()
         """for contour in contours:
             x, y, w, h = cv2.boundingRect(contour)
             roi = original_image[y:y+h, x:x+w]
