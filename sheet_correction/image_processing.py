@@ -52,7 +52,7 @@ def preprocess_image(image_path):
     return image, filled_quadrats, empty_quadrats"""
 def detect_quadrats(image, binary):
     # Define the ROI
-    x, y, w, h = 20, 250, 1200, 1754
+    x, y, w, h = 20, 250, 1200, 1900
     roi_image = image[y:y+h, x:x+w]
     roi_binary = binary[y:y+h, x:x+w]
 

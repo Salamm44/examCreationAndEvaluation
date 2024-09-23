@@ -32,6 +32,7 @@ def upload_corrected_sheet(root):
 
             # Step 1: Upload and convert PDF
             image_paths=upload_and_convert_pdf(file_path, "corrected_sheet")
+            print(image_paths)
 
             # Create a processor instance with the corrected sheet prefix
             processor = QuadratProcessor(prefix='corrected_sheet')

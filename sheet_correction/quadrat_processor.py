@@ -7,7 +7,10 @@ import logging
 import re
 from ui.event_handlers.utils import upload_and_convert_pdf 
 
+
+operationnum=1
 class QuadratProcessor:
+    
     pytesseract.pytesseract.tesseract_cmd=r"C:\Program Files\Tesseract-OCR\tesseract.exe"
     def __init__(self, directory='./assets/processed_images', prefix='corrected_sheet', student_id=None):
         self.directory = directory
@@ -125,6 +128,7 @@ class QuadratProcessor:
     
     
     def extract_correct_answers_with_boxes(self, filename=None, sheet_type='corrected'):
+        global operationnum
         if filename:
             image_path = os.path.join(self.directory, filename)
             if not os.path.exists(image_path):
@@ -180,12 +184,15 @@ class QuadratProcessor:
             cv2.putText(processed_image, str(1 if is_filled else 0), (x - 30, y + h // 2), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
         
         # Save the processed image with the student ID in the filename
-        output_filename = f'processed_image_with_contours_and_values_{sheet_type}'
+        output_filename = f'processed_image_with_contours_and_values_{sheet_type}_page_{operationnum}'
         if self.student_id:
             output_filename += f'_ID_{self.student_id}'
         output_filename += '.jpg'
         output_path = os.path.join(self.directory, output_filename)
         cv2.imwrite(output_path, processed_image)
         print(f"Processed image saved to {output_path}")
+        operationnum+=1
         
         return quadrat_values
+    
+    
