@@ -4,6 +4,8 @@ import json
 from dataclasses import dataclass, field, asdict
 from typing import List
 from sheet_correction.quadrat_processor import QuadratProcessor 
+from sheet_correction.db_con import PDFGenerator
+import tkinter as tk
 
 # Define the path to your assets directory
 ROOT_DIR = os.path.join(".", "allstudent")
@@ -62,9 +64,25 @@ def ensure_dir(directory: str):
 
 def save_student_score(student: Student):
     """Saves a single student's score to the students file."""
-    students = load_students_from_file(STUDENTS_FILE)
+    """students = load_students_from_file(STUDENTS_FILE)
     students.append(student)
-    save_students_to_file(students, STUDENTS_FILE)
+    save_students_to_file(students, STUDENTS_FILE)"""
+    try:
+        # Update the score in the database using the student's ID
+        addscore=PDFGenerator(database='Students')
+        addscore.connect()
+        addscore.add_score(student.student_id,student.score)
+        addscore.close()
+        tk.messagebox.showinfo("Score update",f"Score for student ID {student.student_id} has been updated to {student.score} in the database.")
+    except Exception as e:
+        tk.messagebox.showerror("Error", f"An error occurred: {str(e)}")
+        # Optionally, if you still want to keep a local record
+        students = load_students_from_file(STUDENTS_FILE)  # Load existing students
+        students.append(student)  # Append new student object
+        save_students_to_file(students, STUDENTS_FILE)  # Save back to file if needed
+
+    except Exception as e:
+        print(f"An error occurred while saving the student's score: {str(e)}")
 
 def save_students_to_file(students: List[Student], filename: str):
     """Saves the list of students to a JSON file."""

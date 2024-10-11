@@ -1,4 +1,6 @@
 import logging
+from sheet_correction.db_con import PDFGenerator
+import tkinter as tk
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')

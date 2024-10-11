@@ -69,17 +69,17 @@ def detect_quadrats(image, binary):
             cv2.drawContours(mask, [contour], -1, color=255, thickness=-1)
             mean_val = cv2.mean(cv2.cvtColor(roi_image, cv2.COLOR_BGR2GRAY), mask=mask)[0]
 
-            if mean_val > 180:  # Adjusted threshold for distinguishing between empty and filled quadrats
+            if mean_val > 170:  # Adjusted threshold for distinguishing between empty and filled quadrats
                 empty_quadrats.append(contour)
             else:
                 filled_quadrats.append(contour)
 
     # Draw the contours on the original image (if needed)
     for contour in empty_quadrats:
-        cv2.drawContours(roi_image, [contour], -1, color=(0, 0, 255), thickness=2)
+        cv2.drawContours(roi_image, [contour], -1, color=(0, 0, 255), thickness=1)
 
     for contour in filled_quadrats:
-        cv2.drawContours(roi_image, [contour], -1, color=(0, 255, 0), thickness=2)
+        cv2.drawContours(roi_image, [contour], -1, color=(0, 255, 0), thickness=1)
 
     return roi_image, filled_quadrats, empty_quadrats
 

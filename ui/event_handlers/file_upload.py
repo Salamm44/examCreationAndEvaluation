@@ -56,14 +56,40 @@ def upload_corrected_sheet(root):
 
 # Upload student sheets
 def upload_student_sheets(root):
-    file_path = filedialog.askopenfilename()
-    if file_path:
-        try:
-            student_id, student_name, student_answers, converted_image_path = process_student_sheet(file_path)
-            validate_and_save_student_sheet(student_id, student_name, student_answers, converted_image_path)
-        except Exception as e:
-            logging.error(f"An error occurred while uploading the student sheet: {e}")
-            messagebox.showerror("Error", f"An error occurred while uploading the student sheet: {e}")
+     # Ask the user whether they want to upload a single file or a folder
+    choice = messagebox.askyesno("Upload Type", "Would you like to upload multiple PDFs from a folder?")
+
+    if choice:  # User chooses to upload multiple PDFs from a folder
+        folder_path = filedialog.askdirectory()  # Ask for folder selection
+        if folder_path:
+            # Get all PDF files from the folder
+            pdf_files = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if f.endswith('.pdf')]
+            if pdf_files:
+                try:
+                    for file_path in pdf_files:
+                        student_id, student_name, student_answers, converted_image_path = process_student_sheet(file_path)
+                        validate_and_save_student_sheet(student_id, student_name, student_answers, converted_image_path)
+                    messagebox.showinfo("Success", "All student sheets have been processed successfully.")
+                except Exception as e:
+                    logging.error(f"An error occurred while uploading the student sheets: {e}")
+                    messagebox.showerror("Error", f"An error occurred while uploading the student sheets: {e}")
+            else:
+                messagebox.showwarning("No PDFs", "No PDF files were found in the selected folder.")
+        else:
+            messagebox.showwarning("No Folder", "No folder selected.")
+    
+    else:  # User chooses to upload a single file
+        file_path = filedialog.askopenfilename(filetypes=[("PDF files", "*.pdf")])  # Ask for single file
+        if file_path:
+            try:
+                student_id, student_name, student_answers, converted_image_path = process_student_sheet(file_path)
+                validate_and_save_student_sheet(student_id, student_name, student_answers, converted_image_path)
+                messagebox.showinfo("Success", "Student sheet has been processed successfully.")
+            except Exception as e:
+                logging.error(f"An error occurred while uploading the student sheet: {e}")
+                messagebox.showerror("Error", f"An error occurred while uploading the student sheet: {e}")
+        else:
+            messagebox.showwarning("No File", "No file selected.")
 
 # Process the student sheet
 """def process_student_sheet(file_path):

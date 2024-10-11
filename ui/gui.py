@@ -4,6 +4,7 @@ import tkinter as tk
 from ui.event_handlers.file_upload import upload_corrected_sheet, upload_student_sheets
 from ui.event_handlers.results import extract_results
 from allstudent.student import clear_students_file
+from sheet_correction.db_con import PDFGenerator
 
 def init_gui():
     root = tk.Tk()
@@ -30,8 +31,56 @@ def init_gui():
 
     # Function to handle the reset button click
     def reset_students_file():
-        clear_students_file()
-        tk.messagebox.showinfo("Reset", "The students database has been reset.")
+        try:
+            # Initialize PDFGenerator and connect to the database
+            pdf_gen = PDFGenerator(database='Students')
+            pdf_gen.connect()
+            pdf_gen.clear_students_file()  
+            pdf_gen.close()
+            tk.messagebox.showinfo("Reset", "The all students database has been reset.")
+        except Exception as e:
+            tk.messagebox.showerror("Error", f"An error occurred: {str(e)}")
+
+        
+            
+    
+    def prepare_exam():
+         # Open a dialog to select the output PDF file
+        output_folder = tk.filedialog.askdirectory(title="Select Output Folder")
+        
+        # Open a dialog to select the input PDF file
+        selected_pdf = tk.filedialog.askopenfilename(
+            filetypes=[("PDF files", "*.pdf")],
+            title="Select Input PDF File"
+        )
+
+        if selected_pdf and output_folder:  # Check if the user selected a file and a folder
+            try:
+                # Initialize PDFGenerator with the correct database name
+                pdf_gen = PDFGenerator(database='Students')
+                pdf_gen.connect()  # Connect to the database
+                pdf_gen.generate_pdf(selected_pdf, output_folder)  # Pass the selected file path and folder
+                pdf_gen.close()  # Close the connection
+                
+                tk.messagebox.showinfo("Success", "Exam PDF generated successfully.")
+            except Exception as e:
+                tk.messagebox.showerror("Error", f"An error occurred: {str(e)}")
+        else:
+            tk.messagebox.showwarning("Warning", "No file or folder selected.")
+
+    def add_new_student_to_db(name):
+        try:
+            # Initialize PDFGenerator and connect to the database
+            pdf_gen = PDFGenerator(database='Students')
+            pdf_gen.connect()
+            pdf_gen.add_student(name)  
+            pdf_gen.close()
+            tk.messagebox.showinfo("Success", f"Student '{name}' added to the database.")
+        except Exception as e:
+            tk.messagebox.showerror("Error", f"An error occurred: {str(e)}")
+
+    student_name_entry = tk.Entry(inner_frame, width=30)
+    student_name_entry.grid(row=7, column=1, padx=5, pady=5)   
 
 
     btn_upload_corrected = tk.Button(
@@ -82,11 +131,35 @@ def init_gui():
     )
     btn_results.grid(row=5, column=1, pady=5, sticky='ew')
 
+    btn_prepare_exam = tk.Button(
+        inner_frame,
+        text="Prepare Exam for All",
+        command=prepare_exam,  # Call the function for preparation
+        width=button_width,
+        padx=20,
+        pady=10,
+        bg="lightcoral",
+        font=("Arial", 14)
+    )
+    btn_prepare_exam.grid(row=6, column=1, pady=5, sticky='ew')  # Position the button in the grid
+
+    btn_add_student_to_db=tk.Button(
+        inner_frame,
+        text="Add new student by name",
+        command=lambda: add_new_student_to_db(student_name_entry.get().strip()),
+        width=button_width,
+        padx=20,
+        pady=10,
+        bg="green",
+        font=("Arial",14)
+    )
+    btn_add_student_to_db.grid(row=8 , column=1 , pady=5 , sticky='ew')
+
 
 
     # Calculate the window size
     window_width = button_width * 10 + 40
-    window_height = (button_width * 3 + 20) * 3 + 100  # Adjusted as needed
+    window_height = (button_width * 3 + 20) * 4 + 100  # Adjusted as needed
 
     # Add a small margin to make the window slightly larger than the buttons
     margin = 20
